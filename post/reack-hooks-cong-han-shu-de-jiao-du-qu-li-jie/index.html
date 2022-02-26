@@ -1,0 +1,499 @@
+<html>
+<head>
+    <meta charset="utf-8" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<title>Reack Hooks 从函数的角度去理解 | Bang&#39;s Blog</title>
+
+<link rel="shortcut icon" href="https://wuwenbang.github.io/favicon.ico?v=1645864006361">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://wuwenbang.github.io/styles/main.css">
+<!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css"> -->
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/highlight.js/9.12.0/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/highlight.js/9.12.0/languages//dart.min.js"></script>
+
+<!-- <script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script> -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script> -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script> -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script> -->
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <a class="navbar-brand" href="/">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Bang&#39;s Blog
+        </div>
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" id="changeNavbar">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+            <div class="nav-item">
+                
+                <a href="/" class="menu gt-a-link">
+                    首页
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/archives" class="menu gt-a-link">
+                    归档
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/tags" class="menu gt-a-link">
+                    标签
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/post/about" class="menu gt-a-link">
+                    关于
+                </a>
+                
+            </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1645864006361"
+                action="/search/">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+<script>
+    /* 移动端导航栏展开/收起切换 */
+    document.getElementById('changeNavbar').onclick = () => {
+        var element = document.getElementById('navbarSupportedContent');
+        if (element.style.display === 'none' || element.style.display === '') {
+            element.style.display = 'block';
+        } else {
+            element.style.display = 'none';
+        }
+    }
+</script>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    Reack Hooks 从函数的角度去理解
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2022-02-26 ·
+                    </time>
+                    
+                        <a href="https://wuwenbang.github.io/tag/E0Eo3bceI/" class="post-tags">
+                            # React
+                        </a>
+                    
+                </div>
+                <div class="post-content">
+                    <h1 id="1-react-核心公式">1. React 核心公式</h1>
+<p>当我们在使用 React 函数组件构筑视图的时候，我们到底在干什么呢？<br>
+大部分时间我们其实是在定义函数（函数组件），然后把写好的函数丢进 <code>ReactDOM.render()</code> 里去渲染，就像这样：</p>
+<pre><code class="language-js">// 定义函数组件
+function App() {
+  return &lt;div&gt;Hello World!&lt;/div&gt;;
+}
+// 渲染函数组件
+ReactDOM.render(&lt;App /&gt;, document.getElementById('root'));
+</code></pre>
+<p>然后 React 帮助我们将函数执行的结果（在函数内部 return 的 HTML 内容）渲染到视图上，所以 React 的核心功能可以用一个简单的公式概括：</p>
+<p><code>UI = f()</code></p>
+<p>即视图等于一个函数执行的结果。</p>
+<p>再介绍后续 Hooks 相关内容之前，首先介绍两个概念：纯函数和副作用函数。</p>
+<ul>
+<li>纯函数（ Pure Function ）：对于相同的输入，永远会得到相同的输出，而且没有任何可观察的副作用，这样的函数被称为纯函数。</li>
+<li>副作用函数（ Side effect Function ）：如果一个函数在运行的过程中，除了返回函数值，还对主调用函数产生附加的影响（例如访问外部变量，发起 HTTP 请求，操作 DOM 等等），这样的函数被称为副作用函数。</li>
+</ul>
+<p>在没有引入 Hooks 之前，函数式组件还是一个纯函数（相同的输入永远获得相同的输出），我们称这样的函数组件为<strong>纯函数组件</strong>。</p>
+<h1 id="2-状态-usestate">2. 状态 useState</h1>
+<p>现在我们已经可以通过 React 渲染一个页面了，然而他就岁月尽好的躺在那，但是如果我想来点动静：比如添加一个计数器——一个数字和一个按钮，每次点击就 +1 ，这个时候我们就需要组件自己的状态了：用 <code>useState</code> 创建状态。先看一个例子：</p>
+<pre><code class="language-jsx">function App() {
+  const [count, setCount] = useState(0);
+  const add = () =&gt; {
+    setCount(count + 1);
+  };
+  return (
+    &lt;div&gt;
+      &lt;div&gt;count:{count}&lt;/div&gt;
+      &lt;button onClick={add}&gt;+1&lt;/button&gt;
+    &lt;/div&gt;
+  );
+}
+ReactDOM.render(&lt;App /&gt;, document.getElementById('root'));
+</code></pre>
+<p>我们来具体聊一下上述代码中我们到底做了哪些事情：</p>
+<ol>
+<li>首先，我们调用 <code>useState</code> 函数并传入初始值 <code>0</code>，<code>useState</code> 函数返回一个包含 <strong>状态（state）</strong> 和 <strong>改变状态的方法（setState）</strong> 的元组，最后我们对元组用解构赋值：将状态赋值给 <code>count</code> 常量，改变状态的方法赋值给 <code>setCount</code> 常量。</li>
+<li>然后我们定义 <code>add</code> 函数：调用 <code>setCount</code> 方法并传入 <code>count + 1</code> 的值。</li>
+<li>接着我们在 <code>return</code> 的 <code>div</code> 元素内渲染 <code>count</code>，同时将函数 <code>add</code> 绑定在 <code>button</code> 元素的 <code>onClick</code> 事件上。</li>
+</ol>
+<p>运行这段代码：初次渲染 <code>count</code> 的值为 <code>0</code>，每次点击 +1 按钮后，页面中 <code>count</code> 的值 +1。</p>
+<p>那么问题来了，页面中渲染的 <code>count</code> 是怎么改变的呢？我们来详细解析一下：</p>
+<ol>
+<li>第一次渲染：
+<ol>
+<li>初始化 <code>useState</code> 中的 <code>state</code> 为初始值 <code>0</code>，然后将其解构赋值给 <code>count</code>。</li>
+<li>渲染 <code>count</code> 的值 <code>0</code> 到页面中。</li>
+</ol>
+</li>
+<li>点击 +1 按钮：
+<ol>
+<li>调用 <code>add</code> 方法，从而调用 <code>setCount</code> 方法并传入新的状态 <code>count + 1</code> 即 <code>1</code>。</li>
+<li>将新的状态 <code>1</code> 更新给 <code>useState</code> 中的 <code>state</code>，随后<strong>触发重新渲染</strong>。</li>
+</ol>
+</li>
+<li>第二次渲染：
+<ol>
+<li>从 <code>useState</code> 获取中的 <code>state</code>（此时 <code>state</code> 已更新为 <code>1</code>），将其解构赋值给 <code>count</code>。</li>
+<li>渲染 <code>count</code> 的值 <code>1</code> 到页面中。</li>
+</ol>
+</li>
+</ol>
+<blockquote>
+<p>根据上述分析我们可以得出 <code>useState</code> 中的 <code>setState</code> 有两个作用：</p>
+<ol>
+<li>更新内部 <code>state</code>；</li>
+<li>触发重新渲染。</li>
+</ol>
+</blockquote>
+<p>可以看到，我们渲染的 UI 随着 <code>state</code> 的变化而变化，所以我们需要更新一下我们的核心公式为 <code>UI = f(state)</code>。</p>
+<p>同时我们可以看到，在每次点击 +1 按钮后，执行相同的 <code>App</code> 函数会得到不同的结果（count 渲染的值每次都变动了），这是因为通过 <code>useState</code> 访问的 <code>state</code> 其实存储在函数组件外部的 <code>React Fiber</code> 对象上的，此时组件已经不是纯函数组件了，而是<strong>带有副作用的函数组件</strong>。</p>
+<h1 id="3-参数-props">3. 参数 Props</h1>
+<p>既然函数式组件本质为函数，那么我们理应可以给它传入参数，一般将其称为 <code>props</code> 即外部参数。<code>props</code> 常常用于父子组件之间状态的传递，先看一个例子：</p>
+<pre><code class="language-jsx">function Child(props) {
+  return &lt;div&gt;child:{props.value}&lt;/div&gt;;
+}
+
+function App() {
+  const [count, setCount] = useState(0);
+  return (
+    &lt;div&gt;
+      &lt;Child value={count} /&gt;
+      &lt;button onClick={() =&gt; setCount(count + 1)}&gt;+1&lt;/button&gt;
+    &lt;/div&gt;
+  );
+}
+ReactDOM.render(&lt;App /&gt;, document.getElementById('root'));
+</code></pre>
+<p>上述代码中：我们先是定义一个函数子组件 <code>Child</code>，声明参数 <code>props</code>，然后在返回的 HTML 中渲染 <code>props.value</code>。在父函数组件 <code>App</code> 中，我们调用 <code>Child</code> 组件，并将 <code>count</code> 的值传给 <code>value</code>，写法为：<code>&lt;Child value={count} /&gt;</code>。<br>
+可以看到：在父函数传入的 <code>value</code> 属性，它会挂载在一个对象上（<code>props</code>），在子函数中我们通过 <code>props.value</code> 拿到。</p>
+<p>当我们点击 +1 按钮时，<code>count</code> 的值发生改变并触发重新渲染，<code>&lt;Child value={count} /&gt;</code>也随之重新渲染， <code>props.value</code> 也随 <code>count</code> 的改变而改变。</p>
+<p>至此我可以得知：<code>props</code> 的改变也会间接导致函数组件重新渲染，核心公式更改为： <code>UI = f(state,props)</code>。</p>
+<h1 id="4-上下文-usecontext">4. 上下文 useContext</h1>
+<p>通过 <code>useState</code> 我们可以使函数式组件拥有自己的内部状态，通过 <code>props</code> 我们可以使得状态在父子组件之间传递。对于组件树中相对位置较远的组件亦或兄弟组件之间，我们可以使用 <code>context</code> 去共享状态，先看一个例子：</p>
+<pre><code class="language-jsx">// 创建 Context
+const countContext = createContext(0);
+// 子组件 A
+function ChildA() {
+  const count = useContext(countContext);
+  return &lt;div&gt;child A:{count}&lt;/div&gt;;
+}
+// 子组件 B
+function ChildB() {
+  const count = useContext(countContext);
+  return &lt;div&gt;child B:{count}&lt;/div&gt;;
+}
+// 父组件
+function App() {
+  const [count, setCount] = useState(0);
+  const add = () =&gt; {
+    setCount(count + 1);
+  };
+  return (
+    &lt;countContext.Provider value={count}&gt;
+      &lt;ChildA /&gt;
+      &lt;ChildB /&gt;
+      &lt;button onClick={add}&gt;+1&lt;/button&gt;
+    &lt;/countContext.Provider&gt;
+  );
+}
+ReactDOM.render(&lt;App /&gt;, document.getElementById('root'));
+</code></pre>
+<ol>
+<li>首先，调用 <code>createContext</code> 创建一个 <code>countContext</code> 上下文。</li>
+<li>在父组件 <code>App</code> 中，我们使用 <code>&lt;countContext.Provider value={count}&gt;</code> ，将 <code>count</code> 作为 <code>context</code> 的内容，然后通过 <code>Provider</code> 对包裹在其内部的组件<strong>提供 <code>context</code></strong>。</li>
+<li>在子组件 <code>ChildA</code>、<code>ChildB</code> 中我们使用 <code>useContext(countContext)</code> 去<strong>消费 <code>context</code></strong>，此时子组件 <code>count</code> 就是通过 <code>context</code> 共享的父组件的 <code>count</code>。</li>
+</ol>
+<p>当我们点击 +1 按钮时，<code>App</code> 中 <code>count</code> 的值发生改变，<code>countContext</code> 值随之改变，并触发重新渲染，<code>ChildA</code>、<code>ChildB</code> 中 <code>count</code> 的值随着 <code>countContext</code> 改变而改变。</p>
+<p>至此我可以得知：<code>context</code> 的改变也会间接导致函数组件重新渲染，核心公式更改为： <code>UI = f(state,props,context)</code>。</p>
+<p>核心公式中 <code>state</code>、<code>props</code>、<code>context</code> 的变动都会更新视图 UI，但其实仔细思考一下就能发现：<code>props</code> 和 <code>context</code> 只不过是充当了 <code>state</code> 的媒介（帮助 <code>state</code> 在组件之间传递和共享），真正意义上 UI 更新还是由 <code>state</code> 的变动引起的。更为切确的说是： <strong><code>setState</code> 在变更 <code>state</code> 的同时触发了重新渲染 <code>re-render</code>（重新执行函数组件）进而导致 UI 视图的变更</strong>。这一点对于理解 Hooks 的作用机制来说非常重要。</p>
+<h1 id="5-引用-useref">5. 引用 useRef</h1>
+<p><code>useRef(initialValue)</code></p>
+<p><code>useRef</code> 返回一个可变的 <code>ref</code> 对象，其 <code>.current</code> 属性被初始化为传入的参数（<code>initialValue</code>）。返回的 <code>ref</code> 对象在组件的整个生命周期内保持不变。</p>
+<p><code>useRef</code> 和 <code>useState</code> 都可以在函数组件内部存储值（状态），相较于 <code>useState</code> , <code>useRef</code> 可以在函数组件内部更新值而不触发重新渲染。或者你可以简单的将 <code>useRef</code> 理解为变更不触发重新渲染的 <code>useState</code>。我们来看一个例子：</p>
+<pre><code class="language-js">function App() {
+  const [count, setCount] = useState(0);
+  const countRef = useRef(0);
+
+  return (
+    &lt;div&gt;
+      &lt;div&gt;countRef:{countRef.current}&lt;/div&gt;
+      &lt;div&gt;countState:{count}&lt;/div&gt;
+      &lt;button onClick={() =&gt; countRef.current++}&gt;change count ref&lt;/button&gt;
+      &lt;button onClick={() =&gt; setCount(count + 1)}&gt;change count state&lt;/button&gt;
+    &lt;/div&gt;
+  );
+}
+ReactDOM.render(&lt;App /&gt;, document.getElementById('root'));
+</code></pre>
+<p>上述例子中：</p>
+<ul>
+<li>当点击 <code>change count ref</code> 按钮时，页面上没有任何变化；</li>
+<li>当点击 <code>change count state</code> 按钮时，页面上 <code>countState</code> 的值 +1 ，并且 <code>countRef</code> 的值也发生了变动。</li>
+</ul>
+<p>值得注意的是：在 <code>countState</code> 变动并且重新渲染的同时，也会把 <code>countRef</code> 当前的值渲染出来。（这里再次解释一下：所谓重新渲染就是再次执行一遍函数（例子中<code>App</code>），在本例中会重新读取 <code>countRef.current</code> 的值然后渲染再页面中。）</p>
+<h1 id="6-副作用-useeffect">6. 副作用 useEffect</h1>
+<p><code>useEffect</code> 可以让你在函数组件中执行副作用操作。</p>
+<h2 id="useeffect-执行顺序">useEffect 执行顺序</h2>
+<p><code>useEffect(effect, deps)</code></p>
+<p><code>useEffect</code> 的第一个参数为一个函数（我们暂时称其为 <code>effect</code> 函数），<code>effect</code> 函数会在函数组件 <code>App</code> 每次渲染后异步执行，同时 <code>effect</code> 函数可以再返回一个函数（我们一般叫它 <code>cleanup</code> 函数），其将在下一次 <code>effect</code> 函数执行前执行。<code>cleanup</code> 函数一般用于清除 <code>effect</code> 残留的副作用，。</p>
+<p><code>useEffect</code> 的执行顺序可以参考下面这个例子：</p>
+<pre><code class="language-js">function App() {
+  const [count, setCount] = useState(0);
+  useEffect(() =&gt; {
+    console.log('effect 执行了');
+    return () =&gt; {
+      console.log('cleanup 执行了');
+    };
+  });
+  const add = () =&gt; {
+    console.log('点击按钮');
+    setCount(count + 1);
+  };
+  console.log(`App函数组件 执行了`);
+  return (
+    &lt;div&gt;
+      &lt;div&gt;count:{count}&lt;/div&gt;
+      &lt;button onClick={add}&gt;+1&lt;/button&gt;
+    &lt;/div&gt;
+  );
+}
+ReactDOM.render(&lt;App /&gt;, document.getElementById('root'));
+</code></pre>
+<p>控制台打印如下：<br>
+<a href="https://imgtu.com/i/HgL5Ed"><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/a131e00a1b5a47528deabace98200739~tplv-k3u1fbpfcp-zoom-1.image" alt="HgL5Ed.png" loading="lazy"></a><br>
+根据打印信息可以得到：</p>
+<ul>
+<li>第一次渲染时，执行了 <code>effect</code> 函数；</li>
+<li>当点击按钮后，触发第二次渲染，先执行 <code>cleanup</code> 函数（第一次渲染 <code>effect</code> 函数返回的函数），再执行 <code>effect</code> 函数。</li>
+</ul>
+<h2 id="useeffect-依赖数组">useEffect 依赖数组</h2>
+<p><code>useEffect</code> 的第二个参数是个依赖数组（<code>deps</code>），在每次渲染后 React 会根据依赖数组来判断是否应该执行 <code>effect</code> 函数。依赖数组 <code>deps</code> 分为一下三种情况讨论：</p>
+<ul>
+<li><code>deps</code> 为空（不填），每次函数组件渲染都会执行 <code>effect</code> 函数；</li>
+<li><code>deps</code> 为 <code>[]</code>，只有在首次函数组件渲染才会执行 <code>effect</code> 函数；</li>
+<li><code>deps</code> 为 <code>[dep1,dep2,...]</code>，在首次函数组件渲染，或者任意依赖项（<code>dep1,dep2,...</code>）变动的情况下会执行 <code>effect</code> 函数。</li>
+</ul>
+<h1 id="7-缓存-usememo-usecallback">7. 缓存 useMemo useCallback</h1>
+<p><code>useMemo</code> 和 <code>useCallback</code> 用于 React 的性能优化，通过合理的使用可以避免多余的计算和渲染。</p>
+<h2 id="usememo">useMemo</h2>
+<p><code>useMemo(fn, deps)</code></p>
+<p><code>useMemo</code> 的参数分别是一个创建函数 <code>fn</code> 和一个依赖数组 <code>deps</code>，创建函数需要一个返回值，只有在依赖项发生改变的时候，才会重新调用此函数返回一个新的值。</p>
+<p>如果使用过 Vue 的小伙伴肯定知道计算属性 <code>computed</code>，<code>useMemo</code> 的作用与其类似，主要用于缓存需要计算的值（<code>state</code> 的衍生值）。举一个例子：</p>
+<pre><code class="language-js">function App() {
+  const [list, setList] = useState([1, 1, 1]);
+  const listLength = useMemo(() =&gt; {
+    return list.length;
+  }, [list]);
+  return (
+    &lt;div&gt;
+      &lt;div&gt;{list.map((item) =&gt; item)}&lt;/div&gt;
+      &lt;div&gt;listLength:{listLength}&lt;/div&gt;
+      &lt;button onClick={() =&gt; setList([...list, 1])}&gt;push&lt;/button&gt;
+    &lt;/div&gt;
+  );
+}
+
+ReactDOM.render(&lt;App /&gt;, document.getElementById('root'));
+</code></pre>
+<p><code>listLength</code> 依赖于 <code>list</code> 计算 <code>list</code> 的长度（是状态 <code>list</code> 的衍生值），每次当且仅当 <code>list</code> 变动时，会重新调用 <code>useMemo</code> 的创建函数，返回一个新的 <code>length</code>。</p>
+<p>当每次点击 <code>push</code> 时，会调用 <code>setList</code> 导致 <code>list</code> 发生变化，<code>list</code> 的变化导致 <code>listLength</code> 重新计算，所以可以看到 <code>listLength</code> 的值随着 <code>list</code> 同步变化。</p>
+<h2 id="usecallback">useCallback</h2>
+<p><code>useCallback(fn, deps)</code></p>
+<p><code>useCallback</code> 的参数分别是一个创建函数 <code>fn</code> 和一个依赖数组 <code>deps</code>，返回值是创建函数的引用，只有当依赖项变化发生改变的时候，<code>useCallback</code> 才会重新创建函数并返回一个新的引用。</p>
+<blockquote>
+<p><code>useCallback(fn, deps)</code> 相当于 <code>useMemo(() =&gt; fn, deps)</code></p>
+</blockquote>
+<p><code>useCallback</code> 最主要的作用就是用于缓存函数的引用，从而避免函数创建时，引用变化所带来的非必要渲染。</p>
+<p>千万不要滥用 <code>useCallback</code>，一般来说 <code>useCallback</code> 的应用场景主要有二：</p>
+<ol>
+<li>函数组件内部定义的函数需要作为其他 Hooks 的依赖。</li>
+<li>父组件内部定义的函数需要传递给子组件，并且子组件由<code>React.memo</code>包裹。</li>
+</ol>
+<blockquote>
+<p><code>React.memo</code> 会检查 <code>props</code> 变更，如果 <code>props</code> 未变动，React 将跳过渲染组件的操作并直接复用最近一次渲染的结果。</p>
+</blockquote>
+<p>场景 1 应该很容易理解，我们主要解释一下场景 2，例子如下：</p>
+<pre><code class="language-js">const Child = React.memo(({ onClick }) =&gt; {
+  console.log(`Button render`);
+  return (
+    &lt;div&gt;
+      &lt;button onClick={onClick}&gt;child button&lt;/button&gt;
+    &lt;/div&gt;
+  );
+});
+
+function App() {
+  const [countA, setCountA] = useState(0);
+  const [countB, setCountB] = useState(0);
+  // 情况1：未包裹 useCallback
+  const onClick = () =&gt; {
+    setCountA(countA + 1);
+  };
+  // 情况2：包裹 useCallback
+  const onClick = useCallback(() =&gt; {
+    setCountA(countA + 1);
+  }, []);
+  return (
+    &lt;div&gt;
+      &lt;div&gt;countA:{countA}&lt;/div&gt;
+      &lt;div&gt;countB:{countB}&lt;/div&gt;
+      &lt;Child onClick={onClick1} /&gt;
+      &lt;button onClick={() =&gt; setCountB(countB + 1)}&gt;App button&lt;/button&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+<p>上例中，<code>Child</code> 子组件由 <code>React.memo</code> 包裹，接收 <code>onClick</code> 函数作为参数。</p>
+<ul>
+<li>情况 1：<code>onClick</code> 未包裹 <code>useCallback</code> ，当点击 <code>app button</code> 时，触发重新渲染，<code>onClick</code> 重新生成函数引用，导致 <code>Child</code> 子组件重新渲染。</li>
+<li>情况 2：<code>onClick</code> 包裹 <code>useCallback</code> ，当点击 <code>app button</code> 时，触发重新渲染，<code>onClick</code> 不会生成新的引用，避免了 <code>Child</code> 子组件重新渲染。</li>
+</ul>
+<h1 id="参考文档">参考文档</h1>
+<ul>
+<li><a href="https://zh-hans.reactjs.org/docs/getting-started.html">React 官方文档</a></li>
+</ul>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://wuwenbang.github.io/post/docker-xue-xi-bi-ji/" class="post-title gt-a-link">
+                    Docker 学习笔记
+                </a>
+            </div>
+        
+
+        
+
+        
+            
+                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css">
+<script src="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js"></script>
+<script>
+    // md5.min.js
+    !function(n){
+        "use strict";
+        function d(n,t){var r=(65535&n)+(65535&t);return(n>>16)+(t>>16)+(r>>16)<<16|65535&r}
+        function f(n,t,r,e,o,u){return d((c=d(d(t,n),d(e,u)))<<(f=o)|c>>>32-f,r);var c,f}
+        function l(n,t,r,e,o,u,c){return f(t&r|~t&e,n,t,o,u,c)}
+        function v(n,t,r,e,o,u,c){return f(t&e|r&~e,n,t,o,u,c)}
+        function g(n,t,r,e,o,u,c){return f(t^r^e,n,t,o,u,c)}
+        function m(n,t,r,e,o,u,c){return f(r^(t|~e),n,t,o,u,c)}
+        function i(n,t){var r,e,o,u,c;n[t>>5]|=128<<t%32,n[14+(t+64>>>9<<4)]=t;var f=1732584193,i=-271733879,a=-1732584194,h=271733878;for(r=0;r<n.length;r+=16)f=l(e=f,o=i,u=a,c=h,n[r],7,-680876936),h=l(h,f,i,a,n[r+1],12,-389564586),a=l(a,h,f,i,n[r+2],17,606105819),i=l(i,a,h,f,n[r+3],22,-1044525330),f=l(f,i,a,h,n[r+4],7,-176418897),h=l(h,f,i,a,n[r+5],12,1200080426),a=l(a,h,f,i,n[r+6],17,-1473231341),i=l(i,a,h,f,n[r+7],22,-45705983),f=l(f,i,a,h,n[r+8],7,1770035416),h=l(h,f,i,a,n[r+9],12,-1958414417),a=l(a,h,f,i,n[r+10],17,-42063),i=l(i,a,h,f,n[r+11],22,-1990404162),f=l(f,i,a,h,n[r+12],7,1804603682),h=l(h,f,i,a,n[r+13],12,-40341101),a=l(a,h,f,i,n[r+14],17,-1502002290),f=v(f,i=l(i,a,h,f,n[r+15],22,1236535329),a,h,n[r+1],5,-165796510),h=v(h,f,i,a,n[r+6],9,-1069501632),a=v(a,h,f,i,n[r+11],14,643717713),i=v(i,a,h,f,n[r],20,-373897302),f=v(f,i,a,h,n[r+5],5,-701558691),h=v(h,f,i,a,n[r+10],9,38016083),a=v(a,h,f,i,n[r+15],14,-660478335),i=v(i,a,h,f,n[r+4],20,-405537848),f=v(f,i,a,h,n[r+9],5,568446438),h=v(h,f,i,a,n[r+14],9,-1019803690),a=v(a,h,f,i,n[r+3],14,-187363961),i=v(i,a,h,f,n[r+8],20,1163531501),f=v(f,i,a,h,n[r+13],5,-1444681467),h=v(h,f,i,a,n[r+2],9,-51403784),a=v(a,h,f,i,n[r+7],14,1735328473),f=g(f,i=v(i,a,h,f,n[r+12],20,-1926607734),a,h,n[r+5],4,-378558),h=g(h,f,i,a,n[r+8],11,-2022574463),a=g(a,h,f,i,n[r+11],16,1839030562),i=g(i,a,h,f,n[r+14],23,-35309556),f=g(f,i,a,h,n[r+1],4,-1530992060),h=g(h,f,i,a,n[r+4],11,1272893353),a=g(a,h,f,i,n[r+7],16,-155497632),i=g(i,a,h,f,n[r+10],23,-1094730640),f=g(f,i,a,h,n[r+13],4,681279174),h=g(h,f,i,a,n[r],11,-358537222),a=g(a,h,f,i,n[r+3],16,-722521979),i=g(i,a,h,f,n[r+6],23,76029189),f=g(f,i,a,h,n[r+9],4,-640364487),h=g(h,f,i,a,n[r+12],11,-421815835),a=g(a,h,f,i,n[r+15],16,530742520),f=m(f,i=g(i,a,h,f,n[r+2],23,-995338651),a,h,n[r],6,-198630844),h=m(h,f,i,a,n[r+7],10,1126891415),a=m(a,h,f,i,n[r+14],15,-1416354905),i=m(i,a,h,f,n[r+5],21,-57434055),f=m(f,i,a,h,n[r+12],6,1700485571),h=m(h,f,i,a,n[r+3],10,-1894986606),a=m(a,h,f,i,n[r+10],15,-1051523),i=m(i,a,h,f,n[r+1],21,-2054922799),f=m(f,i,a,h,n[r+8],6,1873313359),h=m(h,f,i,a,n[r+15],10,-30611744),a=m(a,h,f,i,n[r+6],15,-1560198380),i=m(i,a,h,f,n[r+13],21,1309151649),f=m(f,i,a,h,n[r+4],6,-145523070),h=m(h,f,i,a,n[r+11],10,-1120210379),a=m(a,h,f,i,n[r+2],15,718787259),i=m(i,a,h,f,n[r+9],21,-343485551),f=d(f,e),i=d(i,o),a=d(a,u),h=d(h,c);return[f,i,a,h]}
+        function a(n){var t,r="",e=32*n.length;for(t=0;t<e;t+=8)r+=String.fromCharCode(n[t>>5]>>>t%32&255);return r}
+        function h(n){var t,r=[];for(r[(n.length>>2)-1]=void 0,t=0;t<r.length;t+=1)r[t]=0;var e=8*n.length;for(t=0;t<e;t+=8)r[t>>5]|=(255&n.charCodeAt(t/8))<<t%32;return r}
+        function e(n){var t,r,e="0123456789abcdef",o="";for(r=0;r<n.length;r+=1)t=n.charCodeAt(r),o+=e.charAt(t>>>4&15)+e.charAt(15&t);return o}
+        function r(n){return unescape(encodeURIComponent(n))}
+        function o(n){return a(i(h(t=r(n)),8*t.length));var t}
+        function u(n,t){return function(n,t){var r,e,o=h(n),u=[],c=[];for(u[15]=c[15]=void 0,16<o.length&&(o=i(o,8*n.length)),r=0;r<16;r+=1)u[r]=909522486^o[r],c[r]=1549556828^o[r];return e=i(u.concat(h(t)),512+8*t.length),a(i(c.concat(e),640))}(r(n),r(t))}
+        function t(n,t,r){return t?r?u(t,n):e(u(t,n)):r?o(n):e(o(n))}
+        "function"==typeof define&&define.amd?define(function(){return t}):"object"==typeof module&&module.exports?module.exports=t:n.md5=t;
+    }(this);
+</script>
+
+
+<div id="gitalk-container"></div>
+
+<script>
+
+  var gitalk = new Gitalk({
+    clientID: 'da1bff533ae46446be74',
+    clientSecret: 'f2c1b6b4d762aa2f8e3e6825aa8b4b9132f81991',
+    repo: 'wuwenbang.github.io',
+    owner: 'wuwenbang',
+    admin: ['wuwenbang'],
+    id: md5(location.pathname),      // Ensure uniqueness and length less than 50
+    distractionFreeMode: false       // Facebook-like distraction free mode
+  })
+
+  gitalk.render('gitalk-container')
+
+</script>
+
+            
+
+            
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">温故而知新</div>
+    <div class="social-container">
+        
+            
+                <a href="https://github.com/wuwenbang" target="_blank">
+                    <i class="fab fa-github gt-c-content-color-first"></i>
+                </a>
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://wuwenbang.github.io/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.highlightAll()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

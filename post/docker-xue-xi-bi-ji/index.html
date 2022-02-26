@@ -1,0 +1,870 @@
+<html>
+<head>
+    <meta charset="utf-8" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<title>Docker 学习笔记 | Bang&#39;s Blog</title>
+
+<link rel="shortcut icon" href="https://wuwenbang.github.io/favicon.ico?v=1645864006361">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://wuwenbang.github.io/styles/main.css">
+<!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css"> -->
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/highlight.js/9.12.0/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/highlight.js/9.12.0/languages//dart.min.js"></script>
+
+<!-- <script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script> -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script> -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script> -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script> -->
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <a class="navbar-brand" href="/">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Bang&#39;s Blog
+        </div>
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" id="changeNavbar">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+            <div class="nav-item">
+                
+                <a href="/" class="menu gt-a-link">
+                    首页
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/archives" class="menu gt-a-link">
+                    归档
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/tags" class="menu gt-a-link">
+                    标签
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/post/about" class="menu gt-a-link">
+                    关于
+                </a>
+                
+            </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1645864006361"
+                action="/search/">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+<script>
+    /* 移动端导航栏展开/收起切换 */
+    document.getElementById('changeNavbar').onclick = () => {
+        var element = document.getElementById('navbarSupportedContent');
+        if (element.style.display === 'none' || element.style.display === '') {
+            element.style.display = 'block';
+        } else {
+            element.style.display = 'none';
+        }
+    }
+</script>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    Docker 学习笔记
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2022-02-26 ·
+                    </time>
+                    
+                        <a href="https://wuwenbang.github.io/tag/L2N1l_PLB/" class="post-tags">
+                            # Docker
+                        </a>
+                    
+                </div>
+                <div class="post-content">
+                    <h2 id="1-docker-初见">1 Docker 初见</h2>
+<h3 id="11-docker-是什么">1.1 Docker 是什么</h3>
+<ul>
+<li>Docker 可以理解成一个超轻量级的虚拟机，专业的说法叫应用<strong>容器</strong>，它是在 LCX（linux 容器）基础上进行的封装。</li>
+<li>Docker 和传统虚拟化方式的不同之处在于容器是在操作系统层面上实现虚拟化，直接复用本地主机的操作系统，而传统方式则是在硬件层面实现。</li>
+<li>相较于传统的 VM 虚拟化方法，Docker 的好处是启动速度快，资源利用率高，性能开销小。</li>
+</ul>
+<h3 id="12docker-的三个概念">1.2.Docker 的三个概念</h3>
+<ol>
+<li>镜像（Image）：<strong>Docker 镜像</strong> 是一个特殊的文件系统，除了提供容器运行时所需的程序、库、资源、配置等文件外，还包含了一些为运行时准备的一些配置参数（如匿名卷、环境变量、用户等）。镜像 不包含 任何动态数据，其内容在构建之后也不会被改变。</li>
+<li>容器（Container）：Docker <strong>镜像</strong> 和 <strong>容器</strong> 的关系，就像是面向对象程序设计中的 <strong>类</strong> 和 <strong>实例</strong> 一样，镜像是静态的定义，容器是镜像运行时的实体。容器可以被创建、启动、停止、删除、暂停等。容器的实质是进程，但与直接在宿主执行的进程不同，容器进程运行于属于自己的独立的 <strong>命名空间</strong>。因此容器可以拥有自己的 root 文件系统、自己的网络配置、自己的进程空间，甚至自己的用户 ID 空间。</li>
+<li>仓库（Repository）：类似于代码仓库，这里是镜像仓库，是 Docker 用来集中存放镜像文件的地方。注意与注册服务器（Registry）的区别：注册服务器是存放仓库的地方，一般会有多个仓库；而仓库是存放镜像的地方，一般每个仓库存放一类镜像，每个镜像利用 tag 进行区分，比如 Ubuntu 仓库存放有多个版本（12.04、14.04 等）的 Ubuntu 镜像。</li>
+</ol>
+<figure data-type="image" tabindex="1"><img src="https://docs.docker.com/engine/images/architecture.svg" alt="Docker Architecture" loading="lazy"></figure>
+<h3 id="13-docker-安装">1.3 Docker 安装</h3>
+<p>不同系统的 Docker 安装方法可以直接参考 Docker 官方安装教程：<a href="https://docs.docker.com/get-docker/">https://docs.docker.com/get-docker/</a></p>
+<h2 id="2-docker-容器">2 Docker 容器</h2>
+<h3 id="21-容器-操作命令">2.1 容器 操作命令</h3>
+<h4 id="创建容器">创建容器</h4>
+<p>首先让我们来创建一个新容器，创建容器的命令是：</p>
+<pre><code>docker run &lt; image_name &gt;
+</code></pre>
+<p><code>image_name</code> 代表一个镜像名称，例如你可以创建一个 nginx 容器，就像这样：</p>
+<pre><code>docker run nginx
+</code></pre>
+<p>输入完成后，直接回车。如果系统中没有这个镜像，Docker 会自动去 Docker Hub 上拉取对应的镜像（最新版本）到本地，然后执行对应的 Shell 脚本，脚本会把镜像自动安装到 Docker 容器里，并最终启动对于的镜像服务（注意，这时候容器是在前台运行的）。</p>
+<blockquote>
+<p>Docker Hub 是 Docker 官方的镜像和社区，里边有很多开发者制作好的镜像，我们可以直接使用这些镜像。如果你有能力，也可以制作镜像，并上传到 Docker Hub。</p>
+</blockquote>
+<h4 id="查看容器">查看容器</h4>
+<p>创建完容器后，如果想查看这个容器的信息和状态，你可以再打开一个新的终端，然后可以使用下面的命令：</p>
+<pre><code>docker ps
+</code></pre>
+<p>然后你就可以看到如下信息：</p>
+<pre><code>CONTAINER ID   IMAGE     COMMAND                  CREATED         STATUS         PORTS     NAMES
+4b2410514c51   nginx     &quot;/docker-entrypoint.…&quot;   8 seconds ago   Up 7 seconds   80/tcp    nice_ritchie
+</code></pre>
+<p>这些信息对应的含义如下表：</p>
+<table>
+<thead>
+<tr>
+<th>信息</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CONTAINER ID</td>
+<td>容器对应的唯一 ID</td>
+</tr>
+<tr>
+<td>IMAGE</td>
+<td>镜像名称</td>
+</tr>
+<tr>
+<td>COMMAND</td>
+<td>执行的相关命令</td>
+</tr>
+<tr>
+<td>CREATED</td>
+<td>创建的时间</td>
+</tr>
+<tr>
+<td>STATUS</td>
+<td>当前镜像的状态（Up 为运行中，Exited 为退出）</td>
+</tr>
+<tr>
+<td>PORTS</td>
+<td>协议和端口</td>
+</tr>
+<tr>
+<td>NAMES</td>
+<td>容器的名称（不指定的话 Docker 会随机生成）</td>
+</tr>
+</tbody>
+</table>
+<h4 id="停止容器">停止容器</h4>
+<p>如果你想停止掉一个正在运行的容器，可以使用下面的命令：</p>
+<pre><code>docker stop &lt;container_id&gt;
+</code></pre>
+<p>当容器停止后，再使用查看命令进行查看，你会发现没有任何容器。</p>
+<pre><code>docker ps
+</code></pre>
+<p>这是因为普通的 <code>ps</code> 指令只会查看正在运行的容器，这时候你要查看你所有容器，包含已经停止的容器，可以加一个 <code>-a</code> 参数。</p>
+<pre><code>docker ps -a
+</code></pre>
+<h4 id="删除容器">删除容器</h4>
+<p>当我们停止容器之后，容器并没有删除，而只是停止掉了。这时候你可以使用下面的命令删除容器。</p>
+<pre><code>docker rm &lt;container_id&gt;
+</code></pre>
+<p>正在运行的容器是无法直接删除的，你可以是强制删除指令进行删除：</p>
+<pre><code>docker rm -f &lt;container_id&gt;
+</code></pre>
+<h3 id="22-容器-attached-和-detached-模式">2.2 容器 attached 和 detached 模式</h3>
+<p>两种模式最简单的对比理解就是：<code>attached</code> 模式在<strong>前台运行</strong><code>，detached</code> 模式在<strong>后台运行</strong>。</p>
+<h4 id="attached-模式">attached 模式</h4>
+<p>我们现在先用 Docker 创建一个 Nginx 容器，并把它映射在服务器的 80 端口，运行如下命令：</p>
+<pre><code>docker run nginx
+</code></pre>
+<p>这个时候你会发现你的命令行（Terminal）上打印出了相关的日志（log）。也就是说 Docker 容器的日志会实时的展现到窗口并且占用此端口。这种模式叫做 <code>attached</code> 模式。</p>
+<p>如果这时候你按 Ctrl+C ，就会停止掉 Docker 服务。也就是在 Linux 上你的操作命令，会直接传递给 Docker 容器。这个缺点就是很容易误操作，你随便 Ctrl+C 一下整个服务就崩掉了。</p>
+<p>所以我们需要一个更好的，更稳定的模式。也就是 <code>detached</code> 模式。<code>attached</code> 模式更适用于容器和程序的调试阶段。</p>
+<h4 id="detached-模式">detached 模式</h4>
+<p><code>detached</code> 模式的开启方法，就是加一个参数 <code>-d</code> 或者 <code>--detach</code>。</p>
+<pre><code>docker run -d nginx
+</code></pre>
+<p>这次你会看到，和 <code>attached</code> 模式不同的是，这次输入完命令后，只显示出了容器的编号，并且可以再输入任何命令。就算我们关掉窗口，容器依然运行，也就是他是在系统后台进行运行的。我们可以通过输入命令 <code>docker ps</code> 查看，发现刚刚启动的 Nginx 服务正在后台运行中。</p>
+<p>这种就比较适合在生产环境中运行，停掉和删除容器都需要使用 Shell 脚本的形式。减少了很多误操作。</p>
+<p>如果你想在 <code>detached</code> 模式下查看日志，你可以使用以下命令：</p>
+<pre><code>docker container logs &lt;container_id&gt;
+</code></pre>
+<h4 id="detached-模式转换-attached-模式">detached 模式转换 attached 模式</h4>
+<p>在运行之后，也有需要调试的时候，Docker 提供了两个模式间的转换。比如现在要把 <code>detached</code> 模式的容器，改为 <code>attached</code> 模式。我们可以输入一下命令：</p>
+<pre><code>docker logs &lt;container_id&gt;
+</code></pre>
+<p>虽然日志在窗口中出现了，但只打印一次 logs，如果想动态一直跟踪日志，可以在命令上加入一个 <code>-f</code>。</p>
+<pre><code>docker logs -f &lt;container_id&gt;
+</code></pre>
+<h4 id="docker-端口映射">Docker 端口映射</h4>
+<p>如果想在浏览器上访问刚刚启动的 Nginx 服务，我们就需要做端口映射，在开启端口映射之前，你首先要之道 Docker 对应的容器端口是多少。比如 Nginx 镜像的端口是 80。知道这个端口后，就可以在启动容器的时候，用<code>-p &lt;port:port&gt;</code> 的形式，启用映射了。</p>
+<pre><code>docker run -p 80:80 nginx
+</code></pre>
+<p>等待项目启动后，打开浏览器窗口，在地址栏输入 127.0.0.1 或 localhost（默认指向 80 端口），就可以打开 Nginx 的默认网址。</p>
+<p>第一个端口是映射到服务器本机的端口; 第二个端口是 Docker 容器使用的端口。 比如你想把 Docker 的 80 端口，映射到服务器的 90 端口。</p>
+<pre><code>docker container run -p 90:80 nginx
+</code></pre>
+<h3 id="23-容器-交互模式">2.3 容器 交互模式</h3>
+<p>有时候容器的镜像不是简单的一个服务，而是需要交互的操作系统。例如创建一个 Ubuntu 系统，然后需要到系统里输入各种 Shell 命令和系统进行交互。这时候 attached 模式和 detached 模式就不能满足要求了。需要使用交互模式。</p>
+<h4 id="使用-ubuntu-镜像并开启交互模式">使用 Ubuntu 镜像并开启交互模式</h4>
+<pre><code>docker run -it ubuntu sh
+</code></pre>
+<p><code>-it</code> 代表启用交互模式，<code>sh</code> 代表可以使用 Shell 脚本。当你输入玩这个脚本后，Docker 就会进入到交互模式。可以使用 <code>ls</code> 来得到目录下的文件。</p>
+<p>这时候你想退出容器和交互模式可以输入 <code>exit</code> 命令。需要重点说明的是，随着命令退出后，容器也会跟着退出，变成 <code>Exited</code> 模式。</p>
+<h4 id="detached-模式下的交互">detached 模式下的交互</h4>
+<p>如果我们想退出交互，但是并不想停止容器。可以先开启 detached 模式，然后通过命令进入交互模式。</p>
+<p>先用 <code>detached</code> 模式创建一个 nginx 镜像的容器。</p>
+<pre><code>docker run -d -p 80:80 nginx
+</code></pre>
+<p>然后直接通过下面的命令就可以进入到交互模式下了（这是我们以后要经常使用的一个命令）。</p>
+<pre><code>docker exec -it &lt;container_id&gt; sh
+
+</code></pre>
+<p><code>exec</code> 是执行的意思，<code>-it</code>交互模式， <code>sh</code> 交互的方式，用 shell 脚本进行交互。<br>
+整个命令的意思是：用 shell 脚本的方式执行交互模式。</p>
+<p>进入后可以使用 <code>ls</code> 来查看容器的文件系统。</p>
+<p>这种模式的优点是，再使用 exit（或者 Ctrl+D）退出后，服务并不会停止，而只是退出了交互模式。可以自己尝试一下退出，然后使用 <code>docker container ls -a</code> 来查看一下容器的状态，你会发现依然是 <code>up</code> 状态。</p>
+<h2 id="3-docker-镜像">3 Docker 镜像</h2>
+<p>镜像是 Docker 里最重要的一个知识点，如果你只会创建容器和使用官方的镜像，并不能算是 Docker 的高手或者是专业选手，只能说会使用 Docker。而制作镜像文件，并让广大网友使用，才是每个 Docker 人的追求。</p>
+<h3 id="31-镜像-基本操作">3.1 镜像 基本操作</h3>
+<h4 id="获取镜像的三种方式">获取镜像的三种方式</h4>
+<ol>
+<li>从网络社区直接拉取，在 Docker 里这种社区叫做 Registry（登记处）。</li>
+<li>从 Dockerfile 构建一个镜像，这种像是 DIY 一个镜像，但是整个构建过程是需要联网，因为需要西在基础镜像，然后根据基础镜像进行构建（build from Dockerfile）。</li>
+<li>自有文件的导入，可以从本地导入已经构建好的镜像文件，在没有网络的时候可以用。这个文件是通过 已有的镜像导出来的压缩包，然后就可以进行使用了。</li>
+</ol>
+<h4 id="镜像社区image-registry">镜像社区（Image registry）</h4>
+<p>镜像社区也叫做 Image registry（镜像登记处），是拉取和下载镜像的网站，你也可以通过 Dockerfile 制作镜像，让所有人使用，类似 Docker Image 专属的简单版 GitHub。</p>
+<ul>
+<li>dockerhub：网址- https://hub.docker.com/ ,Docker 官方社区，在使用 Docker 时默认的拉取网站。</li>
+</ul>
+<h4 id="拉取镜像">拉取镜像</h4>
+<p>我们先尝试从 Dockerhub 上拉取 nginx 镜像：</p>
+<pre><code class="language-bash">docker image pull nginx
+# 可以简写为：
+docker pull nginx
+</code></pre>
+<p>如果是第一次拉取镜像，则需要下载很多依赖的基础镜像。具体快慢会和网速有关。这里给出第一次拉取 nginx 的日志信息。</p>
+<pre><code class="language-bash">% docker pull nginx
+Using default tag: latest
+latest: Pulling from library/nginx
+5eb5b503b376: Pull complete
+1ae07ab881bd: Pull complete
+78091884b7be: Pull complete
+091c283c6a66: Pull complete
+55de5851019b: Pull complete
+b559bad762be: Pull complete
+Digest: sha256:2834dc507516af02784808c5f48b7cbe38b8ed5d0f4837f16e78d00deb7e7767
+Status: Downloaded newer image for nginx:latest
+docker.io/library/nginx:latest
+
+</code></pre>
+<p>上面命令的第二行 tag 的意思就是版本,latest 代表的是最新版。因为这里并没有给版本号，你可以加入版本号进行下载的。到 dockerhub 上可以找到对应的版本号。比如我们要下载 wordpress 1.20 版本，就可以输入下面的命令。</p>
+<pre><code class="language-bash">docker pull nginx:1.20
+</code></pre>
+<h4 id="查看镜像">查看镜像</h4>
+<ul>
+<li>查看镜像列表</li>
+</ul>
+<pre><code class="language-bash">docker image ls
+</code></pre>
+<p>通过这条命令就可以查看 Docker 中有的镜像和相关信息。</p>
+<ul>
+<li>查看具体镜像信息</li>
+</ul>
+<pre><code class="language-bash">docker image inspech &lt;image_id&gt;
+</code></pre>
+<p>通过这条命令就可以查看具体某个镜像的详细信息。</p>
+<h4 id="删除镜像">删除镜像</h4>
+<ul>
+<li>删除单个镜像</li>
+</ul>
+<pre><code class="language-bash">docker image rm &lt;image_id&gt;
+</code></pre>
+<p>需要注意的是，当有容器在使用镜像时，是没有办法被删除的。即使容器是停止掉的，依然是没办法删除的。</p>
+<ul>
+<li>删除所有未被容器使用的镜像</li>
+</ul>
+<pre><code class="language-bash">docker image prune -a
+</code></pre>
+<p>prune（修剪） 命令用来删除不再使用的 docker 对象。</p>
+<h4 id="导出镜像">导出镜像</h4>
+<pre><code class="language-bash">docker image save
+</code></pre>
+<p>在导出之前，你最好到一个好找的路径下面（比如 Desktop 目录），使用 mkdir 命令创建一个文件夹，进入文件后输入下面的命令。比如现在要导出镜像中的 nginx 镜像，可以这样写命令。</p>
+<pre><code class="language-bash">docker image save nginx:latest -o my_nginx.image
+</code></pre>
+<p>解读上面的命令：<code>save</code> 是导出/保存的意思，<code>nginx:latest</code> 是镜像名称+版本号， <code>-o</code> 代表输出，<code>my_nginx.image</code> 是导出后镜像的名字。</p>
+<p>命令执行完成后，可以看到在执行命令所在的目录下就会多出一个 <code>my_nginx.image</code> 的文件，这就是刚才导出的镜像了。</p>
+<h4 id="导入镜像">导入镜像</h4>
+<p>先删除掉本机已有的 <code>nginx</code> 镜像。</p>
+<pre><code class="language-bash">docker image rm nginx
+</code></pre>
+<p>删除后直接导入镜像。</p>
+<pre><code class="language-bash">docker image load -i .\my_nginx.image
+</code></pre>
+<p>执行完命令之后，再使用 <code>docker image ls</code> 命令查看，<code>nginx</code> 镜像已经回来了。</p>
+<h3 id="32-镜像-dockerfile-构筑镜像">3.2 镜像 Dockerfile 构筑镜像</h3>
+<h4 id="初识-dockerfile">初识 Dockerfile</h4>
+<p>已经讲了两种获取 Docker 镜像的方式，第一种是直接从 Registry 中拉去，第二种是自己导入导出镜像。接下来是第三种获得镜像的方法：通过 <code>Dockerfile</code> 来 DIY 制作镜像。</p>
+<p>通过 Dockerfile 构建镜像虽然比较麻烦，这是最常使用的一种方式，必须掌握。它的知识点非常多，后期准备专门出一篇文章来讲解这个 Dockerfile 的使用、语法和注意问题。</p>
+<p>什么是 Dockerfile ？</p>
+<blockquote>
+<p>Dockerfile 是一个包含用于组合映像的命令的文本文档。可以使用在命令行中调用任何命令。 Docker 通过读取 Dockerfile 中的指令自动生成映像。</p>
+</blockquote>
+<p>可以简单总结为下面三点：</p>
+<ul>
+<li>Dockerfile 是用于构建 <code>docker镜像</code> 的文件。</li>
+<li>Dockerfile 里包含了构建镜像所需的<strong>指令</strong>。</li>
+<li>Dockerfile 有其特定的<strong>语法规则</strong>（重要学习）。</li>
+</ul>
+<h4 id="第一个-dockerfile-demo">第一个 Dockerfile Demo</h4>
+<p>有这样一个需求：制作一个镜像。镜像拥有一个 <code>nodejs</code> 环境，然后在系统上运行 <code>hello.js</code> 程序。JS 程序的内容非常简单，只要打印出 <code>Hello Docker!</code>，就可以了。这个需求可以分为一下几个步骤去实现：</p>
+<ol>
+<li>第一步，下载一个 Node 环境。</li>
+<li>第二步，准备 <code>hello.js</code> 文件。我们可以在 <code>Desktop</code> 目录下新建一个 <code>DockerTest</code> 文件夹，然后在文件夹中新建一个 <code>hello.js</code> 文件，然后编写下面的文件。</li>
+</ol>
+<pre><code class="language-js">console.log('Hello Docker!');
+</code></pre>
+<ol start="3">
+<li>第三步，运行 <code>hello.js</code>。</li>
+</ol>
+<pre><code class="language-bash">node hello.js
+Hello Docker!
+</code></pre>
+<p>有了以上的步骤，我们就可以开始编写 <code>Dockerfile</code> 文件了：</p>
+<pre><code class="language-dockerfile">FROM node
+ADD hello.js /
+CMD [&quot;node&quot;,&quot;hello.js&quot;]
+</code></pre>
+<p>这算是最简单的一个 <code>Dockerfile</code> 文件的编写，有了这个文件之后，就可以通过 <code>Dockerfile</code> 来构建一个镜像了。</p>
+<p>当有了 <code>Dockerfile</code> 和 <code>hello.js</code> 文件以后，通过命令行进入 <code>DockerTest</code> 文件夹。通过 Docker 命令就可以完成镜像的构建：</p>
+<pre><code class="language-bash">docker image build -t &lt;name:tag&gt; &lt;file_path&gt;
+</code></pre>
+<p>例如现在要通过已经写好的 <code>Dockerfile</code>，构建一个 <code>hello</code> 的镜像，就可以使用下面的命令构建。</p>
+<pre><code class="language-bash">docker image build -t hello .
+</code></pre>
+<p>（注意命令最后是有一个<code>.</code>的），如果你是第一次执行打包，这个过程还是需要 2-3 分钟的，当出现 <code>FINISHED</code> 后，说明打包完成了。</p>
+<p>打包完成后，可以通过 <code>docker image ls</code> 命令来查看现在拥有的镜像列表。如果一切正常，你应该可以看到名字为 <code>hello</code> 的镜像已经存在了。</p>
+<p>可以执行容器，验证一下自己 DIY 的镜像是否可用。</p>
+<pre><code class="language-bash">docker run node
+
+</code></pre>
+<p>镜像如果正常，应该正确现实出 <code>Hello Docker</code> 字样，然后就直接退出容器了。这是跟我们写的 <code>Dockerfile</code> 有关的。</p>
+<h3 id="33-镜像-dockerhub-分享镜像">3.3 镜像 Dockerhub 分享镜像</h3>
+<p>这一章节我们要把镜像 <code>push</code> 到 <code>dockerhub</code> 上去，这样就可以让所有人进行使用了。想要分享镜像，需要做到一下几步：</p>
+<p>第一步，申请了一个账号，例如账号名为 <code>prayx</code> ，所以在点开 <code>Profile</code> 时是没有任何镜像的。</p>
+<p>第二步，如果你想上传属于自己的镜像，需要遵守社区规则，就是 <code>用户ID/镜像名称</code>。可以最简单的方法，就是重新 build 一个镜像，镜像名称符合社区规则就可以了。</p>
+<pre><code class="language-bash">docker image build -t prayx/hello .
+</code></pre>
+<p>这时候就会生成一下新的镜像，但是 <code>Image ID</code> 是一摸一样的。</p>
+<p>也可以通过 <code>docker image tag</code> 命令，具体语法如下：</p>
+<pre><code class="language-bash">docker image tag &lt;old_image_name&gt; &lt;new_iamge_name&gt;
+
+</code></pre>
+<p>例如把 hello 这个镜像，改为 prayx/hello 镜像,命令可以如下：</p>
+<pre><code class="language-bash">docker image tag hello prayx/hello
+</code></pre>
+<p>在推送前，需要先登录 Dockerhub 账号,登录命令如下：</p>
+<pre><code class="language-bash">docker login
+</code></pre>
+<p>执行命令好，会要求输入 <code>Username</code>，也就你 <code>Dockerhub ID</code>，还需要输入密码。如果输入正确，并出现 <code>Login Succeeded</code> 就证明登录成功了。</p>
+<pre><code class="language-bash">docker image push Name[:TAG]
+</code></pre>
+<p>比如就是把刚才的 <code>prayx/hello</code> 镜像 <code>push</code> 到社区，就可以使用下面的命令。</p>
+<pre><code class="language-bash">docker image push prayx/hello
+</code></pre>
+<p>输入完命令，就会给我们进行 <code>push</code> 到 <code>Dockerhub</code> 上了。这时候你可以到 <code>Dockerhub</code> 的 <code>profile</code> 页面，刷新一下，就可以看到刚刚 <code>push</code> 上去的镜像。</p>
+<h2 id="4-dockerfile">4 Dockerfile</h2>
+<h3 id="41-dockerfile-from-指令">4.1 Dockerfile FROM 指令</h3>
+<p>还记得上一章节，我们写的 Dockerfile 文件吗？</p>
+<pre><code class="language-dockerfile">FROM node
+ADD hello.js /
+CMD [&quot;node&quot;,&quot;hello.js&quot;]
+</code></pre>
+<p>第一句就是 <code>FROM node</code>，它的意思是选择一个基础镜像，我这里选择的是带最新版本 Node 的 Linux 系统。等价于 <code>FROM node:latest</code>。如果想选择固定版本的只需要在<code>:</code>后面加上版本号：<code>FROM node:16</code>。</p>
+<p>使用 <code>Dockerfile</code> 定制镜像，就需要是以一个镜像为基础，在其上进行定制。就像我们之前运行了一个 <code>node</code> 镜像的容器，再进行修改一样，基础镜像是必须指定的。而 <code>FROM</code> 就是指定 基础镜像，因此一个 <code>Dockerfile</code> 中 <code>FROM</code> 是必备的指令，并且必须是第一条指令。<br>
+在 <code>Docker Hub</code> 上有非常多的高质量的官方镜像，有可以直接拿来使用的服务类的镜像，如 <code>nginx</code>、<code>redis</code>、<code>mongo</code>、<code>mysql</code>、<code>httpd</code>、<code>php</code>、<code>tomcat</code> 等；也有一些方便开发、构建、运行各种语言应用的镜像，如<code>node</code>、<code>openjdk</code>、<code>python</code>、<code>ruby</code>、<code>golang</code> 等。可以在其中寻找一个最符合我们最终目标的镜像为基础镜像进行定制。<br>
+如果没有找到对应服务的镜像，官方镜像中还提供了一些更为基础的操作系统镜像，如 <code>ubuntu</code>、<code>debian</code>、<code>centos</code>、<code>alpine</code> 等，这些操作系统的软件库为我们提供了更广阔的扩展空间。<br>
+除了选择现有镜像为基础镜像外，Docker 还存在一个特殊的镜像，名为 <code>scratch</code>。这个镜像是虚拟的概念，并不实际存在，它表示一个空白的镜像。如果你以 <code>scratch</code> 为基础镜像的话，意味着你不以任何镜像为基础，接下来所写的指令将作为镜像第一层开始存在。</p>
+<pre><code class="language-Dockerfile">FROM scratch
+...
+</code></pre>
+<h4 id="选择基础镜像的三个原则">选择基础镜像的三个原则</h4>
+<ol>
+<li>官方镜像优于非官方的镜像。</li>
+<li>固定版本的 Tag，而不是每次都使用 latest。</li>
+<li>功能满足的前提下，选择体积小的镜像。</li>
+</ol>
+<h3 id="42-dockerfile-run-指令">4.2 Dockerfile RUN 指令</h3>
+<p><code>RUN</code> 是 Dockerfile 中一个重要的指令，它可以执行 <code>Shell</code> 指令，包括下载文件、安装软件、配置环境.....都是可以的。</p>
+<p>例如我们先选定 <code>Ubuntu</code> 作为我们基础镜像，纯净的 <code>Ubuntu</code> 系统是没有 <code>ipinfo</code> 命令的，在安装完系统后，都会安装 <code>ipinfo</code> 命令。步骤如下：</p>
+<pre><code class="language-bash">$ apt-get update
+$ apt-get install wget
+$ wget https://github.com/ipinfo/cli/releases/download/ipinfo-2.0.1/ipinfo_2.0.1_linux_amd64.tar.gz
+$ tar zxf ipinfo_2.0.1_linux_amd64.tar.gz
+$ mv ipinfo_2.0.1_linux_amd64 /usr/bin/ipinfo
+$ rm -rf ipinfo_2.0.1_linux_amd64.tar.gz
+</code></pre>
+<blockquote>
+<p>上面这段代码需要你会一些 Linux 的基本操作，其实就是安装，解压和删除下载文件的一个过程。</p>
+</blockquote>
+<h4 id="不建议的-dockerfile-写法">不建议的 Dockerfile 写法</h4>
+<p>如果用 <code>RUN</code> 命令来编写，直接可以写成下面的样子。</p>
+<pre><code class="language-Dockerfile">FROM ubuntu:latest
+RUN apt-get update
+RUN apt-get install -y wget
+RUN wget https://github.com/ipinfo/cli/releases/download/ipinfo-2.0.1/ipinfo_2.0.1_linux_amd64.tar.gz
+RUN tar zxf ipinfo_2.0.1_linux_amd64.tar.gz
+RUN mv ipinfo_2.0.1_linux_amd64 /usr/bin/ipinfo
+RUN rm -rf ipinfo_2.0.1_linux_amd64.tar.gz
+</code></pre>
+<p>Dockerfile 中每一个指令都会建立一层（image layer），<code>RUN</code> 也不例外。每一个 <code>RUN</code> 的行为，就和刚才我们手工建立镜像的过程一样：新建立一层，在其上执行这些命令，执行结束后，<code>commit</code> 这一层的修改，构成新的镜像。</p>
+<p>上面的这种写法，创建了 6 层镜像。这是完全没有意义的，而且很多运行时不需要的东西，都被装进了镜像里，比如编译环境、更新的软件包等等。结果就是产生非常臃肿、非常多层的镜像，不仅仅增加了构建部署的时间，也很容易出错。 这是很多初学 Docker 的人常犯的一个错误。</p>
+<h4 id="建议的-dockerfile-写法">建议的 Dockerfile 写法</h4>
+<p>把所有执行命令放到一个 <code>RUN</code> 里，并用<code>&amp;&amp; \</code>进行连接。就可以把很多命令写到一个 <code>RUN</code> 里边了。</p>
+<pre><code class="language-Dockerfile">FROM ubuntu:latest
+RUN apt-get update &amp;&amp; \
+    apt-get install -y wget &amp;&amp; \
+    wget https://github.com/ipinfo/cli/releases/download/ipinfo-2.0.1/ipinfo_2.0.1_linux_amd64.tar.gz &amp;&amp; \
+    tar zxf ipinfo_2.0.1_linux_amd64.tar.gz &amp;&amp; \
+    mv ipinfo_2.0.1_linux_amd64 /usr/bin/ipinfo &amp;&amp; \
+    rm -rf ipinfo_2.0.1_linux_amd64.tar.gz
+</code></pre>
+<p>这样所有的 <code>RUN</code> 命令只生成一层 <code>image layer</code>。打包出来的镜像也没有那么大了。</p>
+<h3 id="43-dockerfile-文件操作">4.3 Dockerfile 文件操作</h3>
+<p>制作镜像的时候，经常需要向镜像里添加文件。在 <code>Dockerfile</code> 中有两个命令可以向镜像中添加文件 <code>COPY</code> 和 <code>ADD</code>。这节我们聊一下这两个命令，并重点了解一下两个命令的不同。</p>
+<h4 id="用-copy-命令构建镜像">用 COPY 命令构建镜像</h4>
+<p>现在我们写一个 <code>Dockerfile</code>，里边的内容是用基础 <code>Node</code> 镜像，然后拷贝一个 <code>index.js</code> 文件进去。</p>
+<p>Dockerfile.copy 内容如下:</p>
+<pre><code class="language-Dockerfile">FROM node:16
+COPY index.js  /app/index.js
+</code></pre>
+<p>引用 <code>node</code> 16 版本，然后把 <code>index.js</code> 文件，拷贝到 <code>app</code> 目录下面。</p>
+<p><code>index.js</code> 文件如下。代码是我们在 3000 端口上，开启了一个最简单 web 服务，然后返回了 <code>Hello Nodejs</code> 两个单词。</p>
+<pre><code class="language-js">//1. 导入 http 模块
+const http = require('http');
+//2. 创建服务器对象
+const server = http.createServer();
+//3. 开启服务器
+server.listen(3000, () =&gt; {
+  console.log('Server is running...');
+});
+//4. 监听浏览器请求并进行处理
+server.on('request', (req, res) =&gt; {
+  // end方法能够将数据返回给浏览器，浏览器会显示该字符串
+  res.end('Hello Nodejs');
+});
+</code></pre>
+<p>两个文件准备好以后，用 <code>build</code> 命令进行构建。</p>
+<pre><code class="language-Dockerfile">docker image build -f Dockerfile.copy -t hello-copy .
+</code></pre>
+<p>构建完成后，可以使用 <code>docerk image ls</code> 命令进行查询。生成成功后，可以启用交互模式，再加上映射端口的形式，运行容器。</p>
+<pre><code class="language-bash">docker container run -it -p 3000:3000 hello-copy sh
+</code></pre>
+<p>这里映射了 <code>3000</code> 端口，这样我们就可以用 <code>127.0.0.1:3000</code> 进行访问了。</p>
+<h4 id="用-add-构筑镜像">用 ADD 构筑镜像</h4>
+<p><code>ADD</code> 构建镜像和 <code>COPY</code> 最直观的一点不同，是 <code>ADD</code> 命令可以直接解压 <code>gzip</code> 压缩文件，这当我们有很多文件要上传操作的时候，就会变的简单很多。</p>
+<p>Dockerfile.add 文件内容：</p>
+<pre><code class="language-Dockerfile">FROM node:alpine3.14
+ADD index.tar  /app/
+</code></pre>
+<p>用 <code>ADD</code> 命令进行打包镜像</p>
+<pre><code class="language-bash">docker image build -f Dockerfile.add -t hello-gzip .
+</code></pre>
+<p>打包好以后使用交互模式，开启容器。</p>
+<pre><code class="language-bash">docker container run -it -p 3000:3000 hello-gzip sh
+</code></pre>
+<p>再进入 <code>app</code> 路径下面，可以看到下面自动给我们解压了 <code>index.tar</code> 文件。</p>
+<h4 id="workdir-切换工作目录">WORKDIR 切换工作目录</h4>
+<p>在写 <code>Dockerfile</code> 文件时，默认的操作目录，是镜像的根目录。但有时候需要拷贝很多内容到镜像里是二级目录，就可以使用 <code>WORKDIR</code> 命令。把工作目录切换到二级，<code>WORKDIR</code> 命令像我们操作 <code>linux</code> 下的 <code>cd</code> 命令。</p>
+<p>比如还是刚才的 <code>Dockerfile.add</code> 文件，我们可以使用 WORKDIR 命令，改成下面的形式。</p>
+<pre><code class="language-Dockerfile">FROM node:alpine3.14
+WORKDIR /app
+ADD index.tar index.js
+</code></pre>
+<p>这时候进入系统后的工作目录，就是在 <code>/app</code> 下面了。</p>
+<h3 id="44-dockerfile-arg-与-env-指令">4.4 Dockerfile ARG 与 ENV 指令</h3>
+<p><code>ARG</code> 和 <code>ENV</code> 是经常容易被混淆的两个 <code>Dockerfile</code> 语法，它们都可以用来设置一个【变量】。但其实两个语法在细节上有很多不同。</p>
+<p>还记得之前我们写过一个默认安装 <code>ipinfo</code> 的 <code>ubuntu</code> 系统吗，其 Dockerfile 文件如下：</p>
+<pre><code class="language-Dockerfile">FROM ubuntu:latest
+RUN apt-get update &amp;&amp; \
+    apt-get install -y wget &amp;&amp; \
+    wget https://github.com/ipinfo/cli/releases/download/ipinfo-2.0.1/ipinfo_2.0.1_linux_amd64.tar.gz &amp;&amp; \
+    tar zxf ipinfo_2.0.1_linux_amd64.tar.gz &amp;&amp; \
+    mv ipinfo_2.0.1_linux_amd64 /usr/bin/ipinfo &amp;&amp; \
+    rm -rf ipinfo_2.0.1_linux_amd64.tar.gz
+</code></pre>
+<p>这段文件里有 <code>ipinfo</code> 的版本是 <code>ipinfo-2.0.1</code>,这个版本是有可能改变的。文件里一共出现了 5 次 <code>2.0.1</code>，修改起来已经比较麻烦了，如果出现更多次，几乎变的不可维护。所以这时候就需要定义一个变量，方便日后的维护。</p>
+<h4 id="env-定义变量">ENV 定义变量</h4>
+<p>先用 <code>ENV</code> 的形式来修改变量，把上面的 <code>Dockerfile.ENV</code> 文件修改为下面的形式（这里有个小坑需要给大家说一下，就是注意在写变量时，值不要有任何的空格，否则在打包时会失败。）</p>
+<pre><code class="language-Dockerfile">FROM ubuntu:latest
+ENV VERSION=2.0.1
+RUN apt-get update &amp;&amp; \
+    apt-get install -y wget &amp;&amp; \
+    wget https://github.com/ipinfo/cli/releases/download/ipinfo-${VERSION}/ipinfo_${VERSION}_linux_amd64.tar.gz &amp;&amp; \
+    tar zxf ipinfo_${VERSION}_linux_amd64.tar.gz &amp;&amp; \
+    mv ipinfo_${VERSION}_linux_amd64 /usr/bin/ipinfo &amp;&amp; \
+    rm -rf ipinfo_${VERSION}_linux_amd64.tar.gz
+</code></pre>
+<p>这样写之后，如果以后版本改变了，我们只要修改一处，就可以完成所有的修改了。</p>
+<p>我们现在来构建一下这个 ENV 的镜像。</p>
+<pre><code class="language-bash">docker image build -f Dockerfile.ENV -t ipinfo-env .
+</code></pre>
+<h4 id="arg-定义变量">ARG 定义变量</h4>
+<p>跟上面的方法一样用 <code>ARG</code> 定义变量效果是一样。只是把 <code>ENV</code> 换成了 <code>ARG</code>。这个文件是 <code>Dockerfile.ARG</code>，内容如下：</p>
+<pre><code class="language-Dockerfile">FROM ubuntu:latest
+ARG VERSION=2.0.1
+RUN apt-get update &amp;&amp; \
+    apt-get install -y wget &amp;&amp; \
+    wget https://github.com/ipinfo/cli/releases/download/ipinfo-${VERSION}/ipinfo_${VERSION}_linux_amd64.tar.gz &amp;&amp; \
+    tar zxf ipinfo_${VERSION}_linux_amd64.tar.gz &amp;&amp; \
+    mv ipinfo_${VERSION}_linux_amd64 /usr/bin/ipinfo &amp;&amp; \
+    rm -rf ipinfo_${VERSION}_linux_amd64.tar.gz
+</code></pre>
+<p>我们可以通过命令来构建一下 <code>ARG</code> 的镜像：</p>
+<pre><code class="language-bash">docker image build -f `Dockerfile.ARG -t` ipinfo-arg .
+</code></pre>
+<h4 id="env-和-arg-的不同点">ENV 和 ARG 的不同点</h4>
+<p>总的来说 ARG 和 ENV 有两点不同，第一点是声明变量的作用域不同，第二点是 ARG 声明后，可以在构建时修改变量。</p>
+<ol>
+<li>ARG 是构建环境，ENV 可带到镜像中</li>
+</ol>
+<p>用交互模式进入到 ipconfig-env 镜像中，然后输入 env 可以看到当前镜像的信息。</p>
+<pre><code class="language-bash">docker container run -it ipinfo-env
+</code></pre>
+<p>然后输入 <code>env</code>，可以看到里边是会有 <code>VERSION</code> 变量的。</p>
+<ol start="2">
+<li>ARG 可以在构建镜像时改变变量值</li>
+</ol>
+<p>在构建时，可以使用 <code>—build-arg</code> 参数来更改变量的值，比如现在要把变量 <code>VERSION</code> 的值进行修改,就可以使用下面的命令。</p>
+<pre><code class="language-bash">docker image build -f Dockerfile.ARG -t ipinfo-arg-2.0.0 --build-arg VERSION=2.0.0 .
+</code></pre>
+<p>这时候我们再使用交互模式，开启 <code>ipinfo-arg-2.0.0</code> 容器。</p>
+<pre><code class="language-bash">docker container run -it ipinfo-arg-2.0.0
+
+</code></pre>
+<p>然后再通过 <code>shell</code> 命令，<code>ipinfo verison</code> 查看 <code>ipinfo</code> 的版本，可以看到版本已经变成了 <code>2.0.0</code> 了。</p>
+<h3 id="45-dockerfile-cmd-与-entrypoint-指令">4.5 Dockerfile CMD 与 ENTRYPOINT 指令</h3>
+<h4 id="cmd-容器启动命令">CMD 容器启动命令</h4>
+<p><code>CMD</code> 指令的格式有一下两种：</p>
+<ul>
+<li><code>shell</code>格式：<code>CMD &lt;命令&gt;</code></li>
+</ul>
+<pre><code class="language-Dockerfile">CMD node hello.js
+</code></pre>
+<ul>
+<li><code>exec</code> 格式：<code>CMD [&quot;可执行文件&quot;, &quot;参数 1&quot;, &quot;参数 2&quot;...]</code></li>
+</ul>
+<pre><code class="language-Dockerfile">CMD [&quot;node&quot;,&quot;hello.js&quot;]
+</code></pre>
+<p><code>CMD</code> 命令在使用时，有三个基本原则需要我们遵守。</p>
+<ul>
+<li>容器启动时默认执行的命令</li>
+<li>如果<code>docker container run</code> 启动容器时指定了其它命令，则 <code>CMD</code> 命令会被忽略</li>
+<li>如果定义多个 <code>CMD</code>，只有最后一个 <code>CMD</code> 执行</li>
+</ul>
+<h4 id="entrypoint-入口点">ENTRYPOINT 入口点</h4>
+<p><code>ENTRYPOINT</code> 的格式和 <code>CMD</code> 指令格式一样，分为 <code>exec</code> 格式和 <code>shell</code> 格式。</p>
+<p><code>ENTRYPOINT</code> 的目的和 <code>CMD</code> 一样，都是在指定容器启动程序及参数。<code>ENTRYPOINT</code> 在运行时也可以替代，不过比 <code>CMD</code> 要略显繁琐，<br>
+需要通过 <code>docker run</code> 的参数 <code>--entrypoint</code> 来指定。<br>
+当指定了 <code>ENTRYPOINT</code> 后，<code>CMD</code> 的含义就发生了改变，不再是直接的运行其命令，而是将 <code>CMD</code> 的内容作为参数传给 <code>ENTRYPOINT</code> 指令，<br>
+换句话说实际执行时，将变为：</p>
+<pre><code class="language-bash">&lt;ENTRYPOINT&gt; &quot;&lt;CMD&gt;&quot;
+</code></pre>
+<h2 id="5-docker-compose">5 Docker Compose</h2>
+<h3 id="51-docker-compose-介绍">5.1 Docker Compose 介绍</h3>
+<p>熟悉 <code>Linux</code> 都知道，我们可以把很多相关的命令写成一个 <code>xxx.sh</code> 文件，而且这些步骤也是相对固定的。</p>
+<p>这样直接运行 <code>sh</code> 文件，就可以逐一执行很多相关的 <code>Docker</code> 命令。这种形式可以减少出错和解决复用问题。<code>Docker</code> 很贴心的为我们准备了一个专门的工具 <code>docker-compose</code>，实现类似 <code>sh</code> 文件的功能。让我们更加轻松的实现多 <code>Docker</code> 命令的操作。</p>
+<p>你也可以把 <code>docker-compose</code> 就是把很多 <code>Docker</code> 命令写入一个专属的文件 <code>docker-compose.yml</code>，然后执行这个文件，就可以直接启动我们想要的容器。<code>docker-compose</code> 也为我们提供了对应的操作命令: <code>docker-compose up</code> 、<code>docker-compose stop</code>。</p>
+<p>也就是说，操作 <code>docker-compose</code> 会有两个大的部分需要操作:</p>
+<ul>
+<li>第一部分：编写 <code>docker-compose.yml</code> 文件。</li>
+<li>第二部分：输入相关的命令构筑容器。</li>
+</ul>
+<h3 id="52-docker-compose-文件结构">5.2 Docker Compose 文件结构</h3>
+<h4 id="yaml-文件的基础结构">yaml 文件的基础结构</h4>
+<p>基本的 <code>docker-compose.yml</code> 文件格式如下：</p>
+<pre><code class="language-yml">version: '3.8'
+
+services: # 容器
+  servicename: # 服务名字，这个名字也是内部 bridge 网络可以使用的 DNS name
+    image: # 镜像的名字
+    command: # 可选，如果设置，则会覆盖默认镜像里的 CMD命令
+    environment: # 可选，相当于 docker run里的 --env
+    volumes: # 可选，相当于docker run里的 -v
+    networks: # 可选，相当于 docker run里的 --network
+    ports: # 可选，相当于 docker run里的 -p
+  servicename2:
+
+volumes: # 可选，相当于 docker volume create
+
+networks: # 可选，相当于 docker network create
+</code></pre>
+<p>下面我们以一个 <code>wordpress</code> 的镜像为例，制作 <code>yaml</code> 文件。</p>
+<ul>
+<li>用 <code>Docker</code> 命令的写法：</li>
+</ul>
+<pre><code class="language-bash">docker container run -d -p 80:80 wordpress
+</code></pre>
+<ul>
+<li>用 <code>yaml</code> 文件的写法：</li>
+</ul>
+<pre><code class="language-yml">version: '3.8'
+
+services:
+  my-wordpress:
+    image: wordpress:latest
+    ports:
+      - 80:80
+</code></pre>
+<h4 id="docker-compose-版本说明">docker-compose 版本说明</h4>
+<blockquote>
+<p>https://docs.docker.com/desktop/</p>
+</blockquote>
+<p>打开这个网址，就会看到 <code>docker-compose</code> 和 <code>Docker</code> 版本的兼容关系表。比如 <code>3.8</code> 版本，要求 <code>Docker Engine</code> 的版本是 <code>19.03.0+</code>。</p>
+<p>我们可以使用下面的命令查看当前电脑的版本。</p>
+<pre><code class="language-bash">docker --version
+Docker version 20.10.10, build b485636
+</code></pre>
+<p>可以看到，我们现在的 <code>Docker</code> 版本是完全符合 <code>docker-compose</code> 的，所以在 <code>yaml</code> 文件的最开始写 <code>version: '3.8'</code> 是没有问题的。</p>
+<p>这里需要说的是: <code>docker-compose</code> 现在有两个主要版本 <code>Version3</code> 和 <code>Version2</code>。这两个版本的 <code>yaml</code> 写法也略有不同，但是基础语法是相同的。</p>
+<h3 id="53-docker-compose-基础命令">5.3 Docker Compose 基础命令</h3>
+<p><code>docker-compose</code> 的命令我们可以直接在终端输入 <code>docker-compose</code> 查看：</p>
+<pre><code class="language-bash">Commands:
+  build              Build or rebuild services
+  config             Validate and view the Compose file
+  create             Create services
+  down               Stop and remove resources
+  events             Receive real time events from containers
+  exec               Execute a command in a running container
+  help               Get help on a command
+  images             List images
+  kill               Kill containers
+  logs               View output from containers
+  pause              Pause services
+  port               Print the public port for a port binding
+  ps                 List containers
+  pull               Pull service images
+  push               Push service images
+  restart            Restart services
+  rm                 Remove stopped containers
+  run                Run a one-off command
+  scale              Set number of containers for a service
+  start              Start services
+  stop               Stop services
+  top                Display the running processes
+  unpause            Unpause services
+  up                 Create and start containers
+  version            Show version information and quit
+
+</code></pre>
+<h4 id="docker-compose-启动容器">docker-compose 启动容器</h4>
+<p>上一节我们配置了一个关于 <code>wordpress</code> 服务的 <code>docker-compose.yml</code> 文件：</p>
+<pre><code class="language-yml">version: '3.8'
+
+services:
+  my-wordpress:
+    image: wordpress:latest
+    ports:
+      - 80:80
+</code></pre>
+<p>现在我们打开 <code>VSCode</code> 进入该文件所在的目录，打开终端输入容器启动命令 <code>docker compose up</code>，就可以开启 <code>wordpress</code> 容器了。但这时候的容器开启方式是有日志输出的，并且窗口被占用了。没办法进行其它操作了。可以加入 <code>-d</code> 参数，解决这个问题。</p>
+<pre><code class="language-bash">docker compose up -d
+</code></pre>
+<p>这样就是后台运行模式了，我们就可以继续操作这个终端了，如果你想查看 <code>service</code> 运行情况，可以使用下面的命令：</p>
+<pre><code class="language-bash">$ docker-compose ps
+       Name                      Command               State                Ports
+-----------------------------------------------------------------------------------------------
+test_my-wordpress_1   docker-entrypoint.sh apach ...   Up      0.0.0.0:80-&gt;80/tcp,:::80-&gt;80/tcp
+</code></pre>
+<h4 id="docker-compose-停止和删除容器">docker-compose 停止和删除容器</h4>
+<p>当你不在使用这个 <code>service</code> 的时候，就可以使用 <code>stop</code> 命令停止。停止以后，容器就处于 <code>Exited</code> 模式了。容器已经停止，就可以进行清理了。</p>
+<pre><code class="language-bash">docker compose stop
+</code></pre>
+<p><code>rm</code> 命令会删除掉由 docker compose 所建立的容器，但用 docker 命令创建的容器不会被删除，对应的网络也不会被删除。</p>
+<pre><code class="language-bash">docker compose rm
+</code></pre>
+<h4 id="docker-compose-命名规则">docker-compose 命名规则</h4>
+<p>用 <code>docker-compose</code> 创建的容器，名字都会加入一个对应文件夹的名字，比如我在的文件夹叫做 <code>test</code> ，而我在 <code>yaml</code> 文件中起的名字是 <code>my-wordpress</code>，最终容器的名字就是 <code>test_my-wordpress_1</code>。</p>
+<p>如果你想更改容器的名字，你可以在 <code>yaml</code> 文件里使用 <code>contaner_name: wordpress-demo</code>指定这个名字：</p>
+<pre><code class="language-yml">version: '3.8'
+
+services:
+  my-wordpress:
+    container_name: wordpress-demo
+    image: wordpress:latest
+    ports:
+      - 80:80
+</code></pre>
+<h3 id="54-docker-compose-自定义镜像构筑">5.4 Docker Compose 自定义镜像构筑</h3>
+<p>如果我们想使用自己的 <code>Dockerfile</code> 去启动自定义的镜像容器，我们可以按以下步骤：</p>
+<ol>
+<li>先创建一个 <code>Dockerfile</code> 文件</li>
+</ol>
+<pre><code class="language-Dockerfile">FROM node:latest
+CMD []
+</code></pre>
+<ol start="2">
+<li>在相同目录下创建 <code>docker-compose.yml</code> 文件</li>
+</ol>
+<pre><code class="language-yml">version: '3.8'
+
+services:
+  my-node:
+    build: .
+    container_name: 'my-node'
+</code></pre>
+<p>这里的 <code>build: .</code> 意思是：根据当前目录下 <code>Dockerfile</code> 文件构筑镜像，再启动容器。</p>
+<ol start="3">
+<li>执行 <code>docker-compose up -d</code></li>
+</ol>
+<p>容器启动之后，你再使用 <code>docker image ls</code> 会看到自定义镜像。</p>
+<h2 id="参考文章">参考文章</h2>
+<ul>
+<li><a href="https://docs.docker.com/">Docker Docs</a></li>
+<li><a href="https://yeasy.gitbook.io/docker_practice/">Docker -- 从入门到实践</a></li>
+<li><a href="https://jspang.com/detailed?id=75#toc21">跟胖哥一起学 Docker</a></li>
+</ul>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://wuwenbang.github.io/post/typescript-react-shi-jian-zong-jie/" class="post-title gt-a-link">
+                    TypeScript + React 实践总结
+                </a>
+            </div>
+        
+
+        
+
+        
+            
+                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css">
+<script src="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js"></script>
+<script>
+    // md5.min.js
+    !function(n){
+        "use strict";
+        function d(n,t){var r=(65535&n)+(65535&t);return(n>>16)+(t>>16)+(r>>16)<<16|65535&r}
+        function f(n,t,r,e,o,u){return d((c=d(d(t,n),d(e,u)))<<(f=o)|c>>>32-f,r);var c,f}
+        function l(n,t,r,e,o,u,c){return f(t&r|~t&e,n,t,o,u,c)}
+        function v(n,t,r,e,o,u,c){return f(t&e|r&~e,n,t,o,u,c)}
+        function g(n,t,r,e,o,u,c){return f(t^r^e,n,t,o,u,c)}
+        function m(n,t,r,e,o,u,c){return f(r^(t|~e),n,t,o,u,c)}
+        function i(n,t){var r,e,o,u,c;n[t>>5]|=128<<t%32,n[14+(t+64>>>9<<4)]=t;var f=1732584193,i=-271733879,a=-1732584194,h=271733878;for(r=0;r<n.length;r+=16)f=l(e=f,o=i,u=a,c=h,n[r],7,-680876936),h=l(h,f,i,a,n[r+1],12,-389564586),a=l(a,h,f,i,n[r+2],17,606105819),i=l(i,a,h,f,n[r+3],22,-1044525330),f=l(f,i,a,h,n[r+4],7,-176418897),h=l(h,f,i,a,n[r+5],12,1200080426),a=l(a,h,f,i,n[r+6],17,-1473231341),i=l(i,a,h,f,n[r+7],22,-45705983),f=l(f,i,a,h,n[r+8],7,1770035416),h=l(h,f,i,a,n[r+9],12,-1958414417),a=l(a,h,f,i,n[r+10],17,-42063),i=l(i,a,h,f,n[r+11],22,-1990404162),f=l(f,i,a,h,n[r+12],7,1804603682),h=l(h,f,i,a,n[r+13],12,-40341101),a=l(a,h,f,i,n[r+14],17,-1502002290),f=v(f,i=l(i,a,h,f,n[r+15],22,1236535329),a,h,n[r+1],5,-165796510),h=v(h,f,i,a,n[r+6],9,-1069501632),a=v(a,h,f,i,n[r+11],14,643717713),i=v(i,a,h,f,n[r],20,-373897302),f=v(f,i,a,h,n[r+5],5,-701558691),h=v(h,f,i,a,n[r+10],9,38016083),a=v(a,h,f,i,n[r+15],14,-660478335),i=v(i,a,h,f,n[r+4],20,-405537848),f=v(f,i,a,h,n[r+9],5,568446438),h=v(h,f,i,a,n[r+14],9,-1019803690),a=v(a,h,f,i,n[r+3],14,-187363961),i=v(i,a,h,f,n[r+8],20,1163531501),f=v(f,i,a,h,n[r+13],5,-1444681467),h=v(h,f,i,a,n[r+2],9,-51403784),a=v(a,h,f,i,n[r+7],14,1735328473),f=g(f,i=v(i,a,h,f,n[r+12],20,-1926607734),a,h,n[r+5],4,-378558),h=g(h,f,i,a,n[r+8],11,-2022574463),a=g(a,h,f,i,n[r+11],16,1839030562),i=g(i,a,h,f,n[r+14],23,-35309556),f=g(f,i,a,h,n[r+1],4,-1530992060),h=g(h,f,i,a,n[r+4],11,1272893353),a=g(a,h,f,i,n[r+7],16,-155497632),i=g(i,a,h,f,n[r+10],23,-1094730640),f=g(f,i,a,h,n[r+13],4,681279174),h=g(h,f,i,a,n[r],11,-358537222),a=g(a,h,f,i,n[r+3],16,-722521979),i=g(i,a,h,f,n[r+6],23,76029189),f=g(f,i,a,h,n[r+9],4,-640364487),h=g(h,f,i,a,n[r+12],11,-421815835),a=g(a,h,f,i,n[r+15],16,530742520),f=m(f,i=g(i,a,h,f,n[r+2],23,-995338651),a,h,n[r],6,-198630844),h=m(h,f,i,a,n[r+7],10,1126891415),a=m(a,h,f,i,n[r+14],15,-1416354905),i=m(i,a,h,f,n[r+5],21,-57434055),f=m(f,i,a,h,n[r+12],6,1700485571),h=m(h,f,i,a,n[r+3],10,-1894986606),a=m(a,h,f,i,n[r+10],15,-1051523),i=m(i,a,h,f,n[r+1],21,-2054922799),f=m(f,i,a,h,n[r+8],6,1873313359),h=m(h,f,i,a,n[r+15],10,-30611744),a=m(a,h,f,i,n[r+6],15,-1560198380),i=m(i,a,h,f,n[r+13],21,1309151649),f=m(f,i,a,h,n[r+4],6,-145523070),h=m(h,f,i,a,n[r+11],10,-1120210379),a=m(a,h,f,i,n[r+2],15,718787259),i=m(i,a,h,f,n[r+9],21,-343485551),f=d(f,e),i=d(i,o),a=d(a,u),h=d(h,c);return[f,i,a,h]}
+        function a(n){var t,r="",e=32*n.length;for(t=0;t<e;t+=8)r+=String.fromCharCode(n[t>>5]>>>t%32&255);return r}
+        function h(n){var t,r=[];for(r[(n.length>>2)-1]=void 0,t=0;t<r.length;t+=1)r[t]=0;var e=8*n.length;for(t=0;t<e;t+=8)r[t>>5]|=(255&n.charCodeAt(t/8))<<t%32;return r}
+        function e(n){var t,r,e="0123456789abcdef",o="";for(r=0;r<n.length;r+=1)t=n.charCodeAt(r),o+=e.charAt(t>>>4&15)+e.charAt(15&t);return o}
+        function r(n){return unescape(encodeURIComponent(n))}
+        function o(n){return a(i(h(t=r(n)),8*t.length));var t}
+        function u(n,t){return function(n,t){var r,e,o=h(n),u=[],c=[];for(u[15]=c[15]=void 0,16<o.length&&(o=i(o,8*n.length)),r=0;r<16;r+=1)u[r]=909522486^o[r],c[r]=1549556828^o[r];return e=i(u.concat(h(t)),512+8*t.length),a(i(c.concat(e),640))}(r(n),r(t))}
+        function t(n,t,r){return t?r?u(t,n):e(u(t,n)):r?o(n):e(o(n))}
+        "function"==typeof define&&define.amd?define(function(){return t}):"object"==typeof module&&module.exports?module.exports=t:n.md5=t;
+    }(this);
+</script>
+
+
+<div id="gitalk-container"></div>
+
+<script>
+
+  var gitalk = new Gitalk({
+    clientID: 'da1bff533ae46446be74',
+    clientSecret: 'f2c1b6b4d762aa2f8e3e6825aa8b4b9132f81991',
+    repo: 'wuwenbang.github.io',
+    owner: 'wuwenbang',
+    admin: ['wuwenbang'],
+    id: md5(location.pathname),      // Ensure uniqueness and length less than 50
+    distractionFreeMode: false       // Facebook-like distraction free mode
+  })
+
+  gitalk.render('gitalk-container')
+
+</script>
+
+            
+
+            
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">温故而知新</div>
+    <div class="social-container">
+        
+            
+                <a href="https://github.com/wuwenbang" target="_blank">
+                    <i class="fab fa-github gt-c-content-color-first"></i>
+                </a>
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://wuwenbang.github.io/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.highlightAll()
+</script>
+
+    </div>
+</div>
+</body>
+</html>
