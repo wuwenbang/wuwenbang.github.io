@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://wuwenbang.github.io</id>
-    <title>Bang&apos;s Blog</title>
-    <updated>2022-02-26T08:27:11.530Z</updated>
+    <title>核动力实验室</title>
+    <updated>2022-02-26T08:55:26.859Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://wuwenbang.github.io"/>
     <link rel="self" href="https://wuwenbang.github.io/atom.xml"/>
     <subtitle>温故而知新</subtitle>
     <logo>https://wuwenbang.github.io/images/avatar.png</logo>
     <icon>https://wuwenbang.github.io/favicon.ico</icon>
-    <rights>All rights reserved 2022, Bang&apos;s Blog</rights>
+    <rights>All rights reserved 2022, 核动力实验室</rights>
     <entry>
         <title type="html"><![CDATA[Reack Hooks 从函数的角度去理解]]></title>
         <id>https://wuwenbang.github.io/post/reack-hooks-cong-han-shu-de-jiao-du-qu-li-jie/</id>
