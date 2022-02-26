@@ -1,11 +1,10 @@
 <html>
-
 <head>
     <meta charset="utf-8" />
 <meta name="description" content="" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-<title>友情链接 | Bang&#39;s Blog</title>
+<title>TypeScript 断言总结 | Bang&#39;s Blog</title>
 
 <link rel="shortcut icon" href="https://wuwenbang.github.io/favicon.ico?v=1645855927533">
 
@@ -26,12 +25,11 @@
 
 
 
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
 </head>
-
 <body>
 <div class="main gt-bg-theme-color-first">
-        <div class="main-content">
-            <nav class="navbar navbar-expand-lg">
+    <nav class="navbar navbar-expand-lg">
     <a class="navbar-brand" href="/">
         <img class="user-avatar" src="/images/avatar.png" alt="头像">
         <div class="site-name gt-c-content-color-first">
@@ -99,25 +97,100 @@
     }
 </script>
 
-            <div class="post-container">
-                <div class="post-detail">
-                    <article>
-                        <!-- <div class="post-content-wrapper"> -->
-                            <div class="post-content">
-                                <div class="friends-desc">
-                                    
-                                </div>
-                                <h3 id="linklist">友链列表</h3>
-                                
-                                    
-                                
-                            </div>
-                        <!-- </div> -->
-                    </article>
-                </div>
-                
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    TypeScript 断言总结
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2022-02-24 ·
+                    </time>
                     
-                        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css">
+                        <a href="https://wuwenbang.github.io/tag/2oeJ2NI0c/" class="post-tags">
+                            # TypeScript
+                        </a>
+                    
+                </div>
+                <div class="post-content">
+                    <h2 id="1-类型断言">1. 类型断言</h2>
+<p>在使用 <code>TypeScript</code> 的过程中，你可能会遇到这种情况：你比 <code>TypeScript</code> 更加清楚某个值的类型。<br>
+比如你从异步请求中拿到一个类型为<code>any</code>的值，但你清楚的知道这个值就是<code>string</code>类型，这个时候你可以通过<strong>类型断言</strong>方式告诉编译器：&quot;嘿！相信我，我知道我在干什么！&quot;。类型断言有点类似于其他语言的类型转换，但它没有运行时的影响，只是在编译阶段起作用。<br>
+类型断言有两种形式：</p>
+<h3 id="11-尖括号语法">1.1 尖括号语法</h3>
+<ul>
+<li>形式：<code>&lt;类型&gt;变量名</code></li>
+</ul>
+<pre><code class="language-ts">let value: any = &quot;this is a string&quot;;
+let length: number = (&lt;string&gt;value).length;
+</code></pre>
+<h3 id="12-as-语法">1.2 as 语法</h3>
+<ul>
+<li>形式：<code>变量名 as 类型</code></li>
+</ul>
+<pre><code class="language-ts">let value: any = &quot;this is a string&quot;;
+let length: number = (value as string).length;
+</code></pre>
+<h2 id="2-非空断言">2. 非空断言</h2>
+<p>当你明确知道某个值不可能为 <code>undefined</code> 和 <code>null</code> 时，你可以用 在变量后面加上一个 <code>!</code>（非空断言符号）来告诉编译器：&quot;嘿！相信我，我确信这个值不为空！&quot;。<br>
+非空断言具体的使用场景如下：</p>
+<pre><code class="language-ts">function fun(value: string | undefined | null) {
+  const str: string = value; // error value 可能为 undefined 和 null
+  const str: string = value!; //ok
+  const length: number = value.length; // error value 可能为 undefined 和 null
+  const length: number = value!.length; //ok
+}
+</code></pre>
+<h2 id="3-确定赋值断言">3. 确定赋值断言</h2>
+<p><code>TypeScript</code> 的确定赋值断言，允许在实例属性和变量声明后面放置一个 <code>!</code> 号，从而告诉 <code>TypeScript</code> 该属性会被明确地赋值。</p>
+<pre><code class="language-ts">let name!: string;
+</code></pre>
+<p>上述表达式就是对编译器说：&quot;有一个名为 <code>name</code> 的属性，其类型为 <code>string | undefined</code>。它以值 <code>undefined</code> 开始。但每次获取或设置该属性时，我都希望将其视为类型 <code>string。</code>&quot;</p>
+<p>为了更好地理解它的作用，我们来看个具体的例子：</p>
+<pre><code class="language-ts">let count: number;
+initialize();
+
+// Variable 'count' is used before being assigned.(2454)
+console.log(2 * count); // Error
+
+function initialize() {
+  count = 10;
+}
+</code></pre>
+<p>很明显该异常信息是说变量 <code>count</code> 在赋值前被使用了，要解决该问题，我们可以使用确定赋值断言：</p>
+<pre><code class="language-ts">let count!: number;
+initialize();
+console.log(2 * count); // Ok
+
+function initialize() {
+  count = 10;
+}
+</code></pre>
+<h2 id="4-参考文章">4. 参考文章</h2>
+<ul>
+<li><a href="https://typescript.bootcss.com/basic-types.html">TypeScript 中文手册</a></li>
+<li><a href="https://juejin.cn/post/6872111128135073806#heading-28">一份不可多得的 TS 学习指南</a></li>
+</ul>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://wuwenbang.github.io/post/typescript-type-he-interface-de-yi-tong/" class="post-title gt-a-link">
+                    TypeScript Type 和 Interface 的异同
+                </a>
+            </div>
+        
+
+        
+
+        
+            
+                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css">
 <script src="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js"></script>
 <script>
     // md5.min.js
@@ -160,15 +233,14 @@
 
 </script>
 
-                    
+            
 
-                    
-                
-            </div>
+            
+        
 
+        
 
-
-            <div class="site-footer gt-c-content-color-first">
+        <div class="site-footer gt-c-content-color-first">
     <div class="slogan gt-c-content-color-first">温故而知新</div>
     <div class="social-container">
         
@@ -202,8 +274,7 @@
   hljs.highlightAll()
 </script>
 
-        </div>
     </div>
+</div>
 </body>
-
 </html>

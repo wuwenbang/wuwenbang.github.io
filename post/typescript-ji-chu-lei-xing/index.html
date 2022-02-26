@@ -1,0 +1,471 @@
+<html>
+<head>
+    <meta charset="utf-8" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<title>TypeScript 基础类型 | Bang&#39;s Blog</title>
+
+<link rel="shortcut icon" href="https://wuwenbang.github.io/favicon.ico?v=1645855927533">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://wuwenbang.github.io/styles/main.css">
+<!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css"> -->
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/highlight.js/9.12.0/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/highlight.js/9.12.0/languages//dart.min.js"></script>
+
+<!-- <script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script> -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script> -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script> -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script> -->
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <a class="navbar-brand" href="/">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Bang&#39;s Blog
+        </div>
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" id="changeNavbar">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+            <div class="nav-item">
+                
+                <a href="/" class="menu gt-a-link">
+                    首页
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/archives" class="menu gt-a-link">
+                    归档
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/tags" class="menu gt-a-link">
+                    标签
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/post/about" class="menu gt-a-link">
+                    关于
+                </a>
+                
+            </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1645855927533"
+                action="/search/">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+<script>
+    /* 移动端导航栏展开/收起切换 */
+    document.getElementById('changeNavbar').onclick = () => {
+        var element = document.getElementById('navbarSupportedContent');
+        if (element.style.display === 'none' || element.style.display === '') {
+            element.style.display = 'block';
+        } else {
+            element.style.display = 'none';
+        }
+    }
+</script>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    TypeScript 基础类型
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2022-02-24 ·
+                    </time>
+                    
+                        <a href="https://wuwenbang.github.io/tag/2oeJ2NI0c/" class="post-tags">
+                            # TypeScript
+                        </a>
+                    
+                </div>
+                <div class="post-content">
+                    <ol>
+<li>Number 类型</li>
+</ol>
+<pre><code class="language-ts">let count: number = 10;
+// ES5：var count = 10;
+</code></pre>
+<h3 id="2-string-类型">2. String 类型</h3>
+<pre><code class="language-ts">let name: string = &quot;hello world&quot;;
+// ES5：var name = 'hello world';
+</code></pre>
+<h3 id="3-boolean-类型">3. Boolean 类型</h3>
+<pre><code class="language-ts">let isCheck: boolean = false;
+// ES5：var isCheck = false;
+</code></pre>
+<h3 id="4-symbol-类型">4. Symbol 类型</h3>
+<pre><code class="language-ts">const sym = Symbol();
+let obj = {
+  [sym]: &quot;hello world&quot;,
+};
+
+console.log(obj[sym]); // hello world
+</code></pre>
+<h3 id="5-null-和-undefined-类型">5. Null 和 Undefined 类型</h3>
+<p>TypeScript 里，<code>undefined</code> 和 <code>null</code> 两者有各自的类型分别为 <code>undefined</code> 和 <code>null</code>。</p>
+<pre><code class="language-ts">let u: undefined = undefined;
+let n: null = null;
+</code></pre>
+<h3 id="6-array-类型">6. Array 类型</h3>
+<p>TypeScript 里，数组类型有两种表达形式：</p>
+<ol>
+<li>直接表示：<code>type[]</code>。</li>
+<li>用泛型的方式表示：<code>Array&lt;type&gt;</code>。</li>
+</ol>
+<pre><code class="language-ts">let array: number[] = [1, 2, 3];
+// ES5：var array = [1,2,3];
+
+let array: Array&lt;number&gt; = [1, 2, 3]; // Array&lt;number&gt;泛型语法
+// ES5：var array = [1,2,3];
+</code></pre>
+<h3 id="7-tuple元组-类型">7. Tuple（元组） 类型</h3>
+<p><code>数组（Array）</code>合并了相同类型的值，而<code>元组（Tuple）</code>合并了不同类型的值</p>
+<pre><code class="language-ts">let array: number[] = [100, 200];
+let tuple: [number, string] = [100, &quot;200&quot;];
+</code></pre>
+<p>当赋值或访问一个已知索引的元素时，会得到正确的类型：</p>
+<pre><code class="language-ts">let tuple: [string, number];
+tuple[0] = &quot;Jack&quot;;
+tuple[1] = 22;
+
+tuple[0].substr(1); //String独有方法
+tuple[1].toFixed(2); //Number独有方法
+</code></pre>
+<p><code>元组（Tuple）</code>类型是固定长度，固定类型的</p>
+<pre><code class="language-ts">let tuple: [string, number];
+tuple = [&quot;jack&quot;]; //❌
+tuple = [100, &quot;juck&quot;]; //❌
+tuple = [&quot;juck&quot;, 100]; //✅
+</code></pre>
+<p><code>React</code>中的<code>useState</code>返回的就是元组类型：</p>
+<pre><code class="language-ts">// 类型定义：返回元组类型 [S, Dispatch&lt;SetStateAction&lt;S&gt;&gt;]
+function useState&lt;S&gt;(
+  initialState: S | (() =&gt; S)
+): [S, Dispatch&lt;SetStateAction&lt;S&gt;&gt;];
+// 元组：解构赋值
+const [state, setState] = useState(0);
+</code></pre>
+<p>总结：<code>数组（Array）</code>和<code>元组（Tuple）</code>的差异：</p>
+<ol>
+<li><code>Array</code>类型统一，<code>Tuple</code>类型可以不一。</li>
+<li><code>Array</code>长度不限，<code>Tuple</code>长度限定。</li>
+</ol>
+<h3 id="8-enum枚举类型">8. Enum（枚举）类型</h3>
+<p>使用枚举我们可以定义一些带名字的常量，以表达限定在一定范围内值。 TypeScript 支持数字的和基于字符串的枚举。</p>
+<h4 id="1-数字枚举">1. 数字枚举</h4>
+<pre><code class="language-ts">enum Direction {
+  NORTH,
+  SOUTH,
+  EAST,
+  WEST,
+}
+
+let dir: Direction = Direction.NORTH; //let dir = 0
+</code></pre>
+<p>默认情况下，<code>NORTH</code> 的初始值为 <code>0</code>，其余的成员会自动<code>+1</code>增长。换句话说，<code>Direction.SOUTH</code>值为<code>1</code>，<code>Direction.EAST</code>值为<code>2</code>，<code>Direction.WEST</code>值为<code>3</code>。</p>
+<p>当然我们也可以设置 NORTH 的初始值，比如：</p>
+<pre><code class="language-ts">enum Direction {
+  NORTH = 3,
+  SOUTH, //4
+  EAST, //5
+  WEST, //6
+}
+</code></pre>
+<h4 id="2-字符串枚举">2. 字符串枚举</h4>
+<p>在 TypeScript 2.4 版本，允许我们使用字符串枚举。在一个字符串枚举里，每个成员都必须用字符串字面量，或另外一个字符串枚举成员进行初始化。</p>
+<pre><code class="language-ts">enum Direction {
+  NORTH = &quot;NORTH&quot;,
+  SOUTH = &quot;SOUTH&quot;,
+  EAST = &quot;EAST&quot;,
+  WEST = &quot;WEST&quot;,
+}
+let dir: Direction = Direction.NORTH; //let dir = 'NORTH'
+</code></pre>
+<p>比起<code>枚举</code>类型，我更推荐使用<code>联合类型</code>来表达对于一组值的约束：</p>
+<pre><code class="language-ts">const Direction = &quot;NORTH&quot; | &quot;SOUTH&quot; | &quot;EAST&quot; | &quot;WEST&quot;;
+let dir: Direction = &quot;NORTH&quot;;
+</code></pre>
+<h3 id="9-object-类型">9. Object 类型</h3>
+<p><code>Object 类型</code>：它是所有 <code>Object</code> 类的实例的类型，它由以下两个接口来定义：</p>
+<ol>
+<li><code>Object</code> 接口定义了 <code>Object.prototype</code> 原型对象上的属性；</li>
+</ol>
+<pre><code class="language-ts">// node_modules/typescript/lib/lib.es5.d.ts
+interface Object {
+  constructor: Function;
+  toString(): string;
+  toLocaleString(): string;
+  valueOf(): Object;
+  hasOwnProperty(v: PropertyKey): boolean;
+  isPrototypeOf(v: Object): boolean;
+  propertyIsEnumerable(v: PropertyKey): boolean;
+}
+</code></pre>
+<ol start="2">
+<li><code>ObjectConstructor</code> 接口定义了 <code>Object</code> 类的属性。</li>
+</ol>
+<pre><code class="language-ts">// node_modules/typescript/lib/lib.es5.d.ts
+interface ObjectConstructor {
+  /** Invocation via `new` */
+  new (value?: any): Object;
+  /** Invocation via function calls */
+  (value?: any): any;
+  readonly prototype: Object;
+  getPrototypeOf(o: any): any;
+  // ···
+}
+</code></pre>
+<p><code>Object</code> 类的所有实例都继承了 <code>Object</code> 接口中的所有属性。</p>
+<h3 id="10-any-类型">10. Any 类型</h3>
+<p>在 <code>TypeScript</code> 中，任何类型都可以被归为 <code>any</code> 类型。这让 <code>any</code> 类型成为了类型系统的顶级类型（也被称作全局超级类型）。</p>
+<pre><code class="language-ts">let value: any = 666;
+value = &quot;hello&quot;;
+value = false;
+value = {};
+value = [];
+</code></pre>
+<p><code>any</code>类型为从<code>JavaScript</code>到<code>TypeScript</code>提供了平稳的过渡方式：你可以将任意类型赋值给<code>any</code>类型，同时也可以对 <code>any</code> 类型的值执行任何操作，而无需做任何形式的静态类型检查。</p>
+<pre><code class="language-ts">let value: any;
+
+value.foo.bar; //✅
+value.trim(); // ✅
+value(); // ✅
+new value(); // ✅
+value[0][1]; // ✅
+</code></pre>
+<p>在许多场景下，这太宽松了。使用 <code>any</code> 类型，可以很容易地编写类型正确但在运行时有问题的代码。如果我们使用 <code>any</code> 类型，就无法使用 <code>TypeScript</code> 提供的大量的保护机制。为了解决 <code>any</code> 带来的问题，<code>TypeScript 3.0</code> 引入了 <code>unknown</code> 类型。</p>
+<h3 id="11-unknown-类型">11. Unknown 类型</h3>
+<p>就像所有类型都可以赋值给 <code>any</code>，所有类型也都可以赋值给 <code>unknown</code>。</p>
+<pre><code class="language-ts">let value: unknown = 666;
+value = &quot;hello&quot;;
+value = false;
+value = {};
+value = [];
+</code></pre>
+<p>但是你不能将<code>unknown</code>类型赋值给一个已经确定的类型：即<code>unknown</code> 类型只能被赋值给 <code>any</code> 类型和 <code>unknown</code> 类型本身。</p>
+<pre><code class="language-ts">let value: unknown;
+
+let value1: unknown = value; // ✅
+let value2: any = value; // ✅
+let value3: boolean = value; // ❌
+let value4: number = value; // ❌
+let value5: string = value; // ❌
+let value6: object = value; // ❌
+let value7: any[] = value; // ❌
+let value8: Function = value; // ❌
+</code></pre>
+<p>同时<code>unknown</code>也无法像<code>any</code>那样执行任意操作：</p>
+<pre><code class="language-ts">let value: unknown;
+
+value.foo.bar; // ❌
+value.trim(); // ❌
+value(); // ❌
+new value(); // ❌
+value[0][1]; // ❌
+</code></pre>
+<p>总结：<code>any</code>类型和<code>unknown</code>类型的异同：</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>any</th>
+<th>unknown</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>被赋值</td>
+<td>可以被赋予任意值</td>
+<td>可以被赋予任意值</td>
+</tr>
+<tr>
+<td>赋值</td>
+<td>可以赋值给任意变量</td>
+<td>只能赋值给 <code>any</code> 和 <code>unknown</code> 类型变量</td>
+</tr>
+<tr>
+<td>操作</td>
+<td>可以进行任意操作</td>
+<td>所有操作被禁止</td>
+</tr>
+</tbody>
+</table>
+<h3 id="12-void-类型">12. Void 类型</h3>
+<p>某种程度上来说，<code>void</code> 类型像是与 <code>any</code> 类型相反，它表示没有任何类型。当一个函数没有返回值时，你通常会见到其返回值类型是 <code>void</code>：</p>
+<pre><code class="language-ts">function doSomething(): void {
+  console.log(&quot;do something&quot;);
+}
+</code></pre>
+<p>需要注意的是，声明一个 <code>void</code> 类型的变量没有什么作用，因为在严格模式下，它的值只能为 <code>undefined：</code></p>
+<pre><code class="language-ts">let unusable: void = undefined;
+</code></pre>
+<h3 id="13-never-类型">13. Never 类型</h3>
+<p><code>never</code> 类型表示的是那些永不存在的值的类型。<br>
+例如，<code>never</code> 类型是那些总是会抛出异常或根本就不会有返回值的函数表达式或箭头函数表达式的返回值类型。</p>
+<pre><code class="language-ts">// function 永远不会返回
+function error(message: string): never {
+  throw new Error(message);
+}
+</code></pre>
+<p>又如，基础类型的<code>交叉类型</code>返回的也是<code>never</code>，应为他们之间永远不存在交集：</p>
+<pre><code class="language-ts">let value = &quot;1&quot; &amp; 1; // never
+</code></pre>
+<p>在 <code>TypeScript</code> 中，可以利用 <code>never</code> 类型的特性来实现全面性检查，具体示例如下：</p>
+<pre><code class="language-ts">type Foo = string | number;
+
+function controlFlowAnalysisWithNever(foo: Foo) {
+  if (typeof foo === &quot;string&quot;) {
+    // 这里 foo 被收窄为 string 类型
+  } else if (typeof foo === &quot;number&quot;) {
+    // 这里 foo 被收窄为 number 类型
+  } else {
+    // foo 在这里是 never
+    const check: never = foo;
+  }
+}
+</code></pre>
+<p>注意在 <code>else</code> 分支里面，我们把收窄为 <code>never</code> 的 <code>foo</code> 赋值给一个显示声明的 <code>never</code> 变量。如果一切逻辑正确，那么这里应该能够编译通过。但是假如后来有一天你的同事修改了 <code>Foo</code> 的类型：</p>
+<pre><code class="language-ts">type Foo = string | number | boolean;
+</code></pre>
+<p>然而他忘记同时修改 <code>controlFlowAnalysisWithNever</code> 方法中的控制流程，这时候 <code>else</code> 分支的 <code>foo</code> 类型会被收窄为 <code>boolean</code> 类型，导致无法赋值给 <code>never</code> 类型，这时就会产生一个编译错误。通过这个方式，我们可以确保<br>
+<code>controlFlowAnalysisWithNever</code> 方法总是穷尽了 <code>Foo</code> 的所有可能类型。<br>
+通过这个示例，我们可以得出一个结论：使用 <code>never</code> 避免出现新增了<code>联合类型</code>没有对应的实现，目的就是写出类型绝对安全的代码。</p>
+<h2 id="参考文章">参考文章</h2>
+<ul>
+<li><a href="https://typescript.bootcss.com/basic-types.html">TypeScript 中文手册</a></li>
+<li><a href="https://juejin.cn/post/6872111128135073806#heading-28">一份不可多得的 TS 学习指南</a></li>
+</ul>
+
+                </div>
+            </article>
+        </div>
+
+        
+
+        
+
+        
+            
+                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css">
+<script src="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js"></script>
+<script>
+    // md5.min.js
+    !function(n){
+        "use strict";
+        function d(n,t){var r=(65535&n)+(65535&t);return(n>>16)+(t>>16)+(r>>16)<<16|65535&r}
+        function f(n,t,r,e,o,u){return d((c=d(d(t,n),d(e,u)))<<(f=o)|c>>>32-f,r);var c,f}
+        function l(n,t,r,e,o,u,c){return f(t&r|~t&e,n,t,o,u,c)}
+        function v(n,t,r,e,o,u,c){return f(t&e|r&~e,n,t,o,u,c)}
+        function g(n,t,r,e,o,u,c){return f(t^r^e,n,t,o,u,c)}
+        function m(n,t,r,e,o,u,c){return f(r^(t|~e),n,t,o,u,c)}
+        function i(n,t){var r,e,o,u,c;n[t>>5]|=128<<t%32,n[14+(t+64>>>9<<4)]=t;var f=1732584193,i=-271733879,a=-1732584194,h=271733878;for(r=0;r<n.length;r+=16)f=l(e=f,o=i,u=a,c=h,n[r],7,-680876936),h=l(h,f,i,a,n[r+1],12,-389564586),a=l(a,h,f,i,n[r+2],17,606105819),i=l(i,a,h,f,n[r+3],22,-1044525330),f=l(f,i,a,h,n[r+4],7,-176418897),h=l(h,f,i,a,n[r+5],12,1200080426),a=l(a,h,f,i,n[r+6],17,-1473231341),i=l(i,a,h,f,n[r+7],22,-45705983),f=l(f,i,a,h,n[r+8],7,1770035416),h=l(h,f,i,a,n[r+9],12,-1958414417),a=l(a,h,f,i,n[r+10],17,-42063),i=l(i,a,h,f,n[r+11],22,-1990404162),f=l(f,i,a,h,n[r+12],7,1804603682),h=l(h,f,i,a,n[r+13],12,-40341101),a=l(a,h,f,i,n[r+14],17,-1502002290),f=v(f,i=l(i,a,h,f,n[r+15],22,1236535329),a,h,n[r+1],5,-165796510),h=v(h,f,i,a,n[r+6],9,-1069501632),a=v(a,h,f,i,n[r+11],14,643717713),i=v(i,a,h,f,n[r],20,-373897302),f=v(f,i,a,h,n[r+5],5,-701558691),h=v(h,f,i,a,n[r+10],9,38016083),a=v(a,h,f,i,n[r+15],14,-660478335),i=v(i,a,h,f,n[r+4],20,-405537848),f=v(f,i,a,h,n[r+9],5,568446438),h=v(h,f,i,a,n[r+14],9,-1019803690),a=v(a,h,f,i,n[r+3],14,-187363961),i=v(i,a,h,f,n[r+8],20,1163531501),f=v(f,i,a,h,n[r+13],5,-1444681467),h=v(h,f,i,a,n[r+2],9,-51403784),a=v(a,h,f,i,n[r+7],14,1735328473),f=g(f,i=v(i,a,h,f,n[r+12],20,-1926607734),a,h,n[r+5],4,-378558),h=g(h,f,i,a,n[r+8],11,-2022574463),a=g(a,h,f,i,n[r+11],16,1839030562),i=g(i,a,h,f,n[r+14],23,-35309556),f=g(f,i,a,h,n[r+1],4,-1530992060),h=g(h,f,i,a,n[r+4],11,1272893353),a=g(a,h,f,i,n[r+7],16,-155497632),i=g(i,a,h,f,n[r+10],23,-1094730640),f=g(f,i,a,h,n[r+13],4,681279174),h=g(h,f,i,a,n[r],11,-358537222),a=g(a,h,f,i,n[r+3],16,-722521979),i=g(i,a,h,f,n[r+6],23,76029189),f=g(f,i,a,h,n[r+9],4,-640364487),h=g(h,f,i,a,n[r+12],11,-421815835),a=g(a,h,f,i,n[r+15],16,530742520),f=m(f,i=g(i,a,h,f,n[r+2],23,-995338651),a,h,n[r],6,-198630844),h=m(h,f,i,a,n[r+7],10,1126891415),a=m(a,h,f,i,n[r+14],15,-1416354905),i=m(i,a,h,f,n[r+5],21,-57434055),f=m(f,i,a,h,n[r+12],6,1700485571),h=m(h,f,i,a,n[r+3],10,-1894986606),a=m(a,h,f,i,n[r+10],15,-1051523),i=m(i,a,h,f,n[r+1],21,-2054922799),f=m(f,i,a,h,n[r+8],6,1873313359),h=m(h,f,i,a,n[r+15],10,-30611744),a=m(a,h,f,i,n[r+6],15,-1560198380),i=m(i,a,h,f,n[r+13],21,1309151649),f=m(f,i,a,h,n[r+4],6,-145523070),h=m(h,f,i,a,n[r+11],10,-1120210379),a=m(a,h,f,i,n[r+2],15,718787259),i=m(i,a,h,f,n[r+9],21,-343485551),f=d(f,e),i=d(i,o),a=d(a,u),h=d(h,c);return[f,i,a,h]}
+        function a(n){var t,r="",e=32*n.length;for(t=0;t<e;t+=8)r+=String.fromCharCode(n[t>>5]>>>t%32&255);return r}
+        function h(n){var t,r=[];for(r[(n.length>>2)-1]=void 0,t=0;t<r.length;t+=1)r[t]=0;var e=8*n.length;for(t=0;t<e;t+=8)r[t>>5]|=(255&n.charCodeAt(t/8))<<t%32;return r}
+        function e(n){var t,r,e="0123456789abcdef",o="";for(r=0;r<n.length;r+=1)t=n.charCodeAt(r),o+=e.charAt(t>>>4&15)+e.charAt(15&t);return o}
+        function r(n){return unescape(encodeURIComponent(n))}
+        function o(n){return a(i(h(t=r(n)),8*t.length));var t}
+        function u(n,t){return function(n,t){var r,e,o=h(n),u=[],c=[];for(u[15]=c[15]=void 0,16<o.length&&(o=i(o,8*n.length)),r=0;r<16;r+=1)u[r]=909522486^o[r],c[r]=1549556828^o[r];return e=i(u.concat(h(t)),512+8*t.length),a(i(c.concat(e),640))}(r(n),r(t))}
+        function t(n,t,r){return t?r?u(t,n):e(u(t,n)):r?o(n):e(o(n))}
+        "function"==typeof define&&define.amd?define(function(){return t}):"object"==typeof module&&module.exports?module.exports=t:n.md5=t;
+    }(this);
+</script>
+
+
+<div id="gitalk-container"></div>
+
+<script>
+
+  var gitalk = new Gitalk({
+    clientID: 'da1bff533ae46446be74',
+    clientSecret: 'f2c1b6b4d762aa2f8e3e6825aa8b4b9132f81991',
+    repo: 'wuwenbang.github.io',
+    owner: 'wuwenbang',
+    admin: ['wuwenbang'],
+    id: md5(location.pathname),      // Ensure uniqueness and length less than 50
+    distractionFreeMode: false       // Facebook-like distraction free mode
+  })
+
+  gitalk.render('gitalk-container')
+
+</script>
+
+            
+
+            
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">温故而知新</div>
+    <div class="social-container">
+        
+            
+                <a href="https://github.com/wuwenbang" target="_blank">
+                    <i class="fab fa-github gt-c-content-color-first"></i>
+                </a>
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://wuwenbang.github.io/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.highlightAll()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

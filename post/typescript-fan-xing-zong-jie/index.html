@@ -1,0 +1,467 @@
+<html>
+<head>
+    <meta charset="utf-8" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<title>TypeScript 泛型总结 | Bang&#39;s Blog</title>
+
+<link rel="shortcut icon" href="https://wuwenbang.github.io/favicon.ico?v=1645855927533">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://wuwenbang.github.io/styles/main.css">
+<!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css"> -->
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/highlight.js/9.12.0/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/highlight.js/9.12.0/languages//dart.min.js"></script>
+
+<!-- <script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script> -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script> -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script> -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script> -->
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <a class="navbar-brand" href="/">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Bang&#39;s Blog
+        </div>
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" id="changeNavbar">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+            <div class="nav-item">
+                
+                <a href="/" class="menu gt-a-link">
+                    首页
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/archives" class="menu gt-a-link">
+                    归档
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/tags" class="menu gt-a-link">
+                    标签
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/post/about" class="menu gt-a-link">
+                    关于
+                </a>
+                
+            </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1645855927533"
+                action="/search/">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+<script>
+    /* 移动端导航栏展开/收起切换 */
+    document.getElementById('changeNavbar').onclick = () => {
+        var element = document.getElementById('navbarSupportedContent');
+        if (element.style.display === 'none' || element.style.display === '') {
+            element.style.display = 'block';
+        } else {
+            element.style.display = 'none';
+        }
+    }
+</script>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    TypeScript 泛型总结
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2022-02-24 ·
+                    </time>
+                    
+                        <a href="https://wuwenbang.github.io/tag/2oeJ2NI0c/" class="post-tags">
+                            # TypeScript
+                        </a>
+                    
+                </div>
+                <div class="post-content">
+                    <h2 id="1-泛型是什么">1. 泛型是什么？</h2>
+<ul>
+<li>
+<p>官方的定义是：</p>
+<blockquote>
+<p>**泛型（Generics）**是指在定义函数、接口或类的时候，不预先指定具体的类型，而在使用的时候再指定类型的一种特性。</p>
+</blockquote>
+</li>
+<li>
+<p>通俗的解释是：泛型是类型系统中的<strong>参数</strong>，就像函数的参数一样，只不过函数的参数传递的是值，而泛型传递的是<strong>类型</strong>。他只出现在现在<strong>函数</strong>，<strong>接口</strong>，和<strong>类</strong>中，主要作用是为了类型的复用。</p>
+</li>
+</ul>
+<ul>
+<li>设计泛型的关键目的：是在成员之间提供有意义的约束，这些成员可以是：函数参数、函数返回值、类的实例成员和类的方法。</li>
+</ul>
+<p>可能这么讲会有一些抽象，接下来我们以泛型函数为例，举一个简单的例子：</p>
+<ol>
+<li>首先我们来定义一个通用的 <code>identity</code> 函数，该函数接收一个<code>number</code>类型的参数，并直接返回这个值：</li>
+</ol>
+<pre><code class="language-ts">function identity(value: number): number {
+  return value;
+}
+identity(1); // ok
+
+identity(&quot;hello&quot;); // error
+// 编译器报错： Argument of type 'string' is not assignable to parameter of type 'number'.ts(2345)
+</code></pre>
+<ol start="2">
+<li>现在，<code>identity</code> 函数能且只能传入 <code>number</code> 类型的参数，如果我想传入 <code>string</code> 类型的 <code>TypeScript</code> 编译器会报错，那么该怎么办呢？或许你会想到 <code>any</code> 类型。</li>
+</ol>
+<pre><code class="language-ts">function identity(value: any) {
+  return value;
+}
+identity(1); // ok
+identity(&quot;hello&quot;); // ok
+</code></pre>
+<ol start="3">
+<li>好吧，传入 <code>any</code> 确实可以生效，但我们失去了定义应该返回哪种类型的能力，并且在这个过程中也丧失了 <code>TypeScript</code> 的类型保护作用。</li>
+</ol>
+<p>我们的目标是让 <code>identity</code> 函数可以适用于任何特定的类型，为了实现这个目标，我们可以使用 <strong>泛型函数</strong> 来解决这个问题：</p>
+<h2 id="2-泛型函数">2. 泛型函数</h2>
+<p>定义泛型函数：</p>
+<pre><code class="language-ts">function identity&lt;T&gt;(value: T): T {
+  return value;
+}
+identity&lt;number&gt;(1); // ok
+identity&lt;string&gt;(&quot;hello&quot;); // ok
+</code></pre>
+<p>对于刚接触 <code>TypeScript</code> 泛型的读者来说，首次看到 <code>&lt;T&gt;</code> 语法会感到陌生。但这没什么可担心的，就像传递参数一样，通过参数变量 <code>T</code>，把用户想要传入的类型，链式传递到后面函数的类型定义中去。</p>
+<figure data-type="image" tabindex="1"><img src="https://user-gold-cdn.xitu.io/2020/6/10/1729b3d9774a21ac?imageView2/0/w/1280/h/960/format/webp/ignore-error/1" alt="泛型传递" loading="lazy"></figure>
+<p>（图片来源：<a href="https://juejin.cn/post/6844904184894980104">掘金阿宝哥</a>）</p>
+<p>参考上面的图片，通过 <code>&lt;T&gt;</code> 声明 <strong>类型变量 <code>T</code></strong>，然后在后面的函数参数类型声明、和函数返回值类型声明中使用：<code>(value: T): T</code>。</p>
+<p>理论上，<code>&lt; &gt;</code>类可以声明任意字符作为类型变量，但在定义泛型时通常用<code>T</code>作为类型变量名称，其中 <code>T</code> 代表 <code>Type</code>。当然，除了 <code>T</code> 之外，以下是常见泛型变量代表的意思：</p>
+<ul>
+<li>K（Key）：表示对象中的键类型。</li>
+<li>V（Value）：表示对象中的值类型。</li>
+<li>E（Element）：表示元素类型。</li>
+<li>U（T 后面的字符）：表示第二个类型参数（以此类推）。</li>
+</ul>
+<p>很多时候并不是只能定义一个类型变量，我们可以引入更多的类型变量。比如我们引入一个新的类型变量 <code>U</code>，用于扩展我们定义的 <code>identity</code> 函数：</p>
+<pre><code class="language-ts">function identity&lt;T, U&gt;(value: T, message: U): T {
+  console.log(message);
+  return value;
+}
+
+console.log(identity&lt;Number, string&gt;(100, &quot;Hello Generics&quot;));
+// Hello Generics
+// 100
+</code></pre>
+<figure data-type="image" tabindex="2"><img src="https://user-gold-cdn.xitu.io/2020/6/10/1729b3dbccc38ea7?imageView2/0/w/1280/h/960/format/webp/ignore-error/1" alt="泛型传递" loading="lazy"></figure>
+<p>（图片来源：<a href="https://juejin.cn/post/6844904184894980104">掘金阿宝哥</a>）</p>
+<p>除了为类型变量显式设定值之外，一种更常见的做法是使编译器自动选择这些类型，从而使代码更简洁。我们可以完全省略尖括号，比如：</p>
+<pre><code class="language-ts">function identity&lt;T, U&gt;(value: T, message: U): T {
+  console.log(message);
+  return value;
+}
+
+console.log(identity(100, &quot;Hello Generics&quot;));
+// Hello Generics
+// 100
+</code></pre>
+<h2 id="3-泛型接口">3. 泛型接口</h2>
+<p>定义泛型接口：</p>
+<pre><code class="language-ts">interface GenericInterface&lt;T&gt; {
+  data: T;
+}
+</code></pre>
+<p>接口泛型的使用方式和函数类似，我们可以通过<code>&lt;T&gt;</code>来声明参数变量<code>T</code>，并将其用在后面接口属性的类型定义上。</p>
+<p>泛型接口常用于定义那些，需要用户自定义类型的对象上，最常见的就是 网络请求的响应对象了，以<code>Axios</code>为例：<br>
+假设我们通过 <code>axios.get</code> 发起网络请求，我们可以通过<code>axios.get&lt;DataType&gt;</code>传入<code>data</code>的类型，最后拿响应 <code>res</code> 时，我们就可以明确的知道<code>data</code>的数据类型 ：</p>
+<pre><code class="language-ts">interface DataType {
+  id: number;
+  message: string;
+}
+axios.get&lt;DataType&gt;(&quot;https://www.xxx.com&quot;).then((res) =&gt; {
+  console.log(res.data.message);
+});
+</code></pre>
+<p>其中<code>axios</code>实例，以及响应<code>res</code>的泛型接口如下定义：</p>
+<pre><code class="language-ts">interface AxiosInstance {
+  // ...
+  get&lt;T = any, R = AxiosResponse&lt;T&gt;&gt;(
+    url: string,
+    config?: AxiosRequestConfig
+  ): Promise&lt;R&gt;;
+}
+
+interface AxiosResponse&lt;T = any&gt; {
+  data: T;
+  status: number;
+  statusText: string;
+  headers: any;
+  config: AxiosRequestConfig;
+  request?: any;
+}
+</code></pre>
+<p>其中响应的 <code>data</code> 是 <code>axios</code> 不知道的，所以 <code>axios</code> 通过泛型的方式，将类型<code>T</code>传递给后面的<code>data</code>属性。</p>
+<h2 id="4-泛型类">4. 泛型类</h2>
+<p>在类中使用泛型也很简单，我们只需要在类名后面，使用 <code>&lt;T, ...&gt;</code> 的语法定义任意多个类型变量。</p>
+<p>定义泛型类：</p>
+<pre><code class="language-ts">interface GenericInterface&lt;U&gt; {
+  value: U;
+  getValue: () =&gt; U;
+}
+
+class GenericClass&lt;T&gt; implements GenericInterface&lt;T&gt; {
+  value: T;
+
+  constructor(value: T) {
+    this.value = value;
+  }
+
+  getValue(): T {
+    return this.value;
+  }
+}
+
+const myNumberClass = new GenericClass&lt;number&gt;(10);
+console.log(myNumberClass.getValue()); // 10
+
+const myStringClass = new GenericClass&lt;string&gt;(&quot;Hello Generics!&quot;);
+console.log(myStringClass.getValue()); // Hello Generics!
+</code></pre>
+<p>接下来我们以实例化 <code>myNumberClass</code> 为例，来分析一下其调用过程：</p>
+<ol>
+<li>在实例化 <code>GenericClass</code> 对象时，我们传入 <code>number</code> 类型和构造函数参数值 68；</li>
+<li>之后在 <code>GenericClass</code> 类中，类型变量 <code>T</code> 的值变成 <code>number</code> 类型；</li>
+<li><code>GenericClass</code> 类实现了 <code>GenericInterface&lt;T&gt;</code>，而此时 <code>T</code> 表示 <code>number</code> 类型，因此等价于该类实现了 <code>GenericInterface&lt;number&gt;</code> 接口；</li>
+<li>而对于 <code>GenericInterface&lt;U&gt;</code> 接口来说，类型变量 <code>U</code> 也变成了 <code>number</code>。这里我有意使用不同的变量名，以表明类型值沿链向上传播，且与变量名无关。</li>
+</ol>
+<h2 id="5-泛型约束">5. 泛型约束</h2>
+<p>有时候我们希望限制泛型变量接受的类型（比如我只希望接受拥有<code>.length</code>属性的类型），我们就需要<strong>泛型约束</strong>。下面我们来举几个例子，介绍一下如何使用泛型约束。</p>
+<h3 id="51-确保属性存在">5.1 确保属性存在</h3>
+<p>有时候，我们希望类型变量对应的类型上存在某些属性。这时，除非我们显式地将特定属性定义为类型变量，否则编译器不会知道它们的存在。<br>
+一个很好的例子是在处理字符串或数组时，我们会假设 <code>length</code> 属性是可用的。让我们再次使用 <code>identity</code> 函数并尝试输出参数的长度：</p>
+<pre><code class="language-ts">function identity&lt;T&gt;(arg: T): T {
+  console.log(arg.length); // error: T doesn't have .length
+  return arg;
+}
+</code></pre>
+<p>在这种情况下，编译器将不会知道 <code>T</code> 确实含有 <code>length</code> 属性，尤其是在可以将任何类型赋给类型变量 <code>T</code> 的情况下。我们需要做的就是让类型变量 <code>extends</code> 一个含有我们所需属性的接口，比如这样：</p>
+<pre><code class="language-ts">interface Length {
+  length: number;
+}
+
+function identity&lt;T extends Length&gt;(arg: T): T {
+  console.log(arg.length); // ok: 可以获取length属性
+  return arg;
+}
+</code></pre>
+<p><code>T extends Length</code> 用于告诉编译器，我们支持已经实现 <code>Length</code> 接口的任何类型。</p>
+<p>之后，当我们使用不含有 <code>length</code> 属性的对象作为参数调用 <code>identity</code> 函数时，<code>TypeScript</code> 会提示相关的错误信息：</p>
+<pre><code class="language-ts">identity(10); // Error
+// Argument of type '68' is not assignable to parameter of type 'Length'.(2345)
+</code></pre>
+<h3 id="52-检查对象上的键是否存在">5.2 检查对象上的键是否存在</h3>
+<p>泛型约束的另一个常见的使用场景就是检查对象上的键是否存在。不过在看具体示例之前，我们得来了解一下 <code>keyof</code> 操作符，该操作符可以用于<strong>获取某种类型的所有键</strong>，其返回类型是<strong>联合类型</strong>。我们来举个 <code>keyof</code> 的使用示例：</p>
+<pre><code class="language-ts">interface Person {
+  name: string;
+  age: number;
+  location: string;
+}
+
+type K1 = keyof Person; // &quot;name&quot; | &quot;age&quot; | &quot;location&quot;
+type K2 = keyof Person[]; // number | &quot;length&quot; | &quot;push&quot; | &quot;concat&quot; | ...
+</code></pre>
+<p>通过 <code>keyof</code> 操作符，我们就可以获取指定类型的所有键，之后我们就可以结合前面介绍的 <code>extends</code> 约束，即限制输入的属性名包含在 <code>keyof</code> 返回的联合类型中。具体的使用方式如下：</p>
+<pre><code class="language-ts">function getProperty&lt;T, K extends keyof T&gt;(obj: T, key: K): T[K] {
+  return obj[key];
+}
+
+const obj = {
+  name: &quot;tom&quot;,
+};
+
+getProperty(obj, &quot;name&quot;); // ok
+getProperty(obj, &quot;age&quot;); // error 属性名 age 不存在 obj 上
+</code></pre>
+<p>在以上的 <code>getProperty</code> 函数中，我们通过<code>K extends keyof T</code> 确保参数 <code>key</code> 一定是对象中含有的键，这样就不会发生运行时错误。这是一个类型安全的解决方案，与简单调用 <code>let value = obj[key];</code> 不同。</p>
+<p>在以上示例中，对于 <code>getProperty(obj, &quot;age&quot;)</code> 这个表达式，<code>TypeScript</code> 编译器会提示以下错误信息：</p>
+<pre><code class="language-ts">// 编译器报错：Argument of type '&quot;age&quot;' is not assignable to parameter of type '&quot;name&quot;'.ts(2345)
+</code></pre>
+<p>很明显通过使用泛型约束，在编译阶段我们就可以提前发现错误，大大提高了程序的健壮性和稳定性。</p>
+<h2 id="6-泛型参数默认类型">6. 泛型参数默认类型</h2>
+<p>我们都知道 <code>JavaScript</code> 的函数参数可以设置初始值（<code>defalut value</code>），类似地，我们也可以为泛型参数设置默认类型。当使用泛型时没有在代码中直接指定类型参数，从实际值参数中也无法推断出类型时，这个默认类型就会起作用。<br>
+泛型参数默认类型与普通函数默认值类似，对应的语法很简单，即 <code>&lt;T=Default Type&gt;</code>，对应的使用示例如下：</p>
+<pre><code class="language-ts">interface MyObject&lt;T = string&gt; {
+  id: T;
+}
+
+const numObject: MyObject = { id: &quot;abc&quot; };
+const strObject: MyObject&lt;number&gt; = { id: 123 };
+</code></pre>
+<p>泛型参数的默认类型遵循以下规则：</p>
+<ul>
+<li>有默认类型的类型参数被认为是<strong>可选的</strong>。</li>
+<li>必选的类型参数不能在可选的类型参数后。</li>
+<li>如果类型参数有约束，类型参数的默认类型必须满足这个约束。</li>
+<li>当指定类型实参时，你只需要指定必选类型参数的类型实参。 未指定的类型参数会被解析为它们的默认类型。</li>
+<li>如果指定了默认类型，且类型推断无法选择一个候选类型，那么将使用默认类型作为推断结果。</li>
+<li>一个被现有类或接口合并的类或者接口的声明可以为现有类型参数引入默认类型。</li>
+<li>一个被现有类或接口合并的类或者接口的声明可以引入新的类型参数，只要它指定了默认类型。</li>
+</ul>
+<h2 id="7-泛型条件类型">7. 泛型条件类型</h2>
+<p>通过<strong>泛型条件类型</strong>，我们可以根据某些条件得到不同的类型，这里所说的条件是类型兼容性约束。尽管以上代码中使用了 <code>extends</code> 关键字，也不一定要强制满足继承关系，而是检查是否满足结构兼容性。</p>
+<p>条件类型会以一个条件表达式进行类型关系检测，从而在两种类型中选择其一：<br>
+<code>T extends U ? X : Y</code><br>
+以上表达式的意思是：若 <code>T</code> 能够赋值给 <code>U</code>（<code>T</code> 属于与 <code>U</code>的子类），那么类型是 <code>X</code>，否则为 <code>Y</code>。在条件类型表达式中，我们通常还会结合 <code>infer</code> 关键字，实现类型抽取：</p>
+<pre><code class="language-ts">interface MyObject&lt;T = any&gt; {
+  key: T;
+}
+
+type StrObject = MyObject&lt;string&gt;;
+type NumObject = MyObject&lt;number&gt;;
+
+type ObjectMember&lt;T&gt; = T extends MyObject&lt;infer V&gt; ? V : never;
+type StrObjectMember = ObjectMember&lt;StrObject&gt;; // string
+type NumObjectMember = ObjectMember&lt;NumObject&gt;; // number
+</code></pre>
+<p>在上面示例中，当类型 <code>T</code> 满足 <code>T extends MyObject</code> 约束时，我们会使用 <code>infer</code> 关键字声明了一个类型变量 <code>V</code>，并返回该类型，否则返回 <code>never</code> 类型。</p>
+<h2 id="8-参考文章">8. 参考文章</h2>
+<ul>
+<li><a href="https://typescript.bootcss.com/basic-types.html">TypeScript 中文手册</a></li>
+<li><a href="https://juejin.cn/post/6872111128135073806#heading-28">一份不可多得的 TS 学习指南</a></li>
+</ul>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://wuwenbang.github.io/post/typescript-duan-yan-zong-jie/" class="post-title gt-a-link">
+                    TypeScript 断言总结
+                </a>
+            </div>
+        
+
+        
+
+        
+            
+                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css">
+<script src="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js"></script>
+<script>
+    // md5.min.js
+    !function(n){
+        "use strict";
+        function d(n,t){var r=(65535&n)+(65535&t);return(n>>16)+(t>>16)+(r>>16)<<16|65535&r}
+        function f(n,t,r,e,o,u){return d((c=d(d(t,n),d(e,u)))<<(f=o)|c>>>32-f,r);var c,f}
+        function l(n,t,r,e,o,u,c){return f(t&r|~t&e,n,t,o,u,c)}
+        function v(n,t,r,e,o,u,c){return f(t&e|r&~e,n,t,o,u,c)}
+        function g(n,t,r,e,o,u,c){return f(t^r^e,n,t,o,u,c)}
+        function m(n,t,r,e,o,u,c){return f(r^(t|~e),n,t,o,u,c)}
+        function i(n,t){var r,e,o,u,c;n[t>>5]|=128<<t%32,n[14+(t+64>>>9<<4)]=t;var f=1732584193,i=-271733879,a=-1732584194,h=271733878;for(r=0;r<n.length;r+=16)f=l(e=f,o=i,u=a,c=h,n[r],7,-680876936),h=l(h,f,i,a,n[r+1],12,-389564586),a=l(a,h,f,i,n[r+2],17,606105819),i=l(i,a,h,f,n[r+3],22,-1044525330),f=l(f,i,a,h,n[r+4],7,-176418897),h=l(h,f,i,a,n[r+5],12,1200080426),a=l(a,h,f,i,n[r+6],17,-1473231341),i=l(i,a,h,f,n[r+7],22,-45705983),f=l(f,i,a,h,n[r+8],7,1770035416),h=l(h,f,i,a,n[r+9],12,-1958414417),a=l(a,h,f,i,n[r+10],17,-42063),i=l(i,a,h,f,n[r+11],22,-1990404162),f=l(f,i,a,h,n[r+12],7,1804603682),h=l(h,f,i,a,n[r+13],12,-40341101),a=l(a,h,f,i,n[r+14],17,-1502002290),f=v(f,i=l(i,a,h,f,n[r+15],22,1236535329),a,h,n[r+1],5,-165796510),h=v(h,f,i,a,n[r+6],9,-1069501632),a=v(a,h,f,i,n[r+11],14,643717713),i=v(i,a,h,f,n[r],20,-373897302),f=v(f,i,a,h,n[r+5],5,-701558691),h=v(h,f,i,a,n[r+10],9,38016083),a=v(a,h,f,i,n[r+15],14,-660478335),i=v(i,a,h,f,n[r+4],20,-405537848),f=v(f,i,a,h,n[r+9],5,568446438),h=v(h,f,i,a,n[r+14],9,-1019803690),a=v(a,h,f,i,n[r+3],14,-187363961),i=v(i,a,h,f,n[r+8],20,1163531501),f=v(f,i,a,h,n[r+13],5,-1444681467),h=v(h,f,i,a,n[r+2],9,-51403784),a=v(a,h,f,i,n[r+7],14,1735328473),f=g(f,i=v(i,a,h,f,n[r+12],20,-1926607734),a,h,n[r+5],4,-378558),h=g(h,f,i,a,n[r+8],11,-2022574463),a=g(a,h,f,i,n[r+11],16,1839030562),i=g(i,a,h,f,n[r+14],23,-35309556),f=g(f,i,a,h,n[r+1],4,-1530992060),h=g(h,f,i,a,n[r+4],11,1272893353),a=g(a,h,f,i,n[r+7],16,-155497632),i=g(i,a,h,f,n[r+10],23,-1094730640),f=g(f,i,a,h,n[r+13],4,681279174),h=g(h,f,i,a,n[r],11,-358537222),a=g(a,h,f,i,n[r+3],16,-722521979),i=g(i,a,h,f,n[r+6],23,76029189),f=g(f,i,a,h,n[r+9],4,-640364487),h=g(h,f,i,a,n[r+12],11,-421815835),a=g(a,h,f,i,n[r+15],16,530742520),f=m(f,i=g(i,a,h,f,n[r+2],23,-995338651),a,h,n[r],6,-198630844),h=m(h,f,i,a,n[r+7],10,1126891415),a=m(a,h,f,i,n[r+14],15,-1416354905),i=m(i,a,h,f,n[r+5],21,-57434055),f=m(f,i,a,h,n[r+12],6,1700485571),h=m(h,f,i,a,n[r+3],10,-1894986606),a=m(a,h,f,i,n[r+10],15,-1051523),i=m(i,a,h,f,n[r+1],21,-2054922799),f=m(f,i,a,h,n[r+8],6,1873313359),h=m(h,f,i,a,n[r+15],10,-30611744),a=m(a,h,f,i,n[r+6],15,-1560198380),i=m(i,a,h,f,n[r+13],21,1309151649),f=m(f,i,a,h,n[r+4],6,-145523070),h=m(h,f,i,a,n[r+11],10,-1120210379),a=m(a,h,f,i,n[r+2],15,718787259),i=m(i,a,h,f,n[r+9],21,-343485551),f=d(f,e),i=d(i,o),a=d(a,u),h=d(h,c);return[f,i,a,h]}
+        function a(n){var t,r="",e=32*n.length;for(t=0;t<e;t+=8)r+=String.fromCharCode(n[t>>5]>>>t%32&255);return r}
+        function h(n){var t,r=[];for(r[(n.length>>2)-1]=void 0,t=0;t<r.length;t+=1)r[t]=0;var e=8*n.length;for(t=0;t<e;t+=8)r[t>>5]|=(255&n.charCodeAt(t/8))<<t%32;return r}
+        function e(n){var t,r,e="0123456789abcdef",o="";for(r=0;r<n.length;r+=1)t=n.charCodeAt(r),o+=e.charAt(t>>>4&15)+e.charAt(15&t);return o}
+        function r(n){return unescape(encodeURIComponent(n))}
+        function o(n){return a(i(h(t=r(n)),8*t.length));var t}
+        function u(n,t){return function(n,t){var r,e,o=h(n),u=[],c=[];for(u[15]=c[15]=void 0,16<o.length&&(o=i(o,8*n.length)),r=0;r<16;r+=1)u[r]=909522486^o[r],c[r]=1549556828^o[r];return e=i(u.concat(h(t)),512+8*t.length),a(i(c.concat(e),640))}(r(n),r(t))}
+        function t(n,t,r){return t?r?u(t,n):e(u(t,n)):r?o(n):e(o(n))}
+        "function"==typeof define&&define.amd?define(function(){return t}):"object"==typeof module&&module.exports?module.exports=t:n.md5=t;
+    }(this);
+</script>
+
+
+<div id="gitalk-container"></div>
+
+<script>
+
+  var gitalk = new Gitalk({
+    clientID: 'da1bff533ae46446be74',
+    clientSecret: 'f2c1b6b4d762aa2f8e3e6825aa8b4b9132f81991',
+    repo: 'wuwenbang.github.io',
+    owner: 'wuwenbang',
+    admin: ['wuwenbang'],
+    id: md5(location.pathname),      // Ensure uniqueness and length less than 50
+    distractionFreeMode: false       // Facebook-like distraction free mode
+  })
+
+  gitalk.render('gitalk-container')
+
+</script>
+
+            
+
+            
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">温故而知新</div>
+    <div class="social-container">
+        
+            
+                <a href="https://github.com/wuwenbang" target="_blank">
+                    <i class="fab fa-github gt-c-content-color-first"></i>
+                </a>
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://wuwenbang.github.io/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.highlightAll()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

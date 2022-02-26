@@ -1,0 +1,473 @@
+<html>
+<head>
+    <meta charset="utf-8" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<title>TypeScript 从集合论的角度理解类型系统 | Bang&#39;s Blog</title>
+
+<link rel="shortcut icon" href="https://wuwenbang.github.io/favicon.ico?v=1645855927533">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://wuwenbang.github.io/styles/main.css">
+<!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css"> -->
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/highlight.js/9.12.0/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/highlight.js/9.12.0/languages//dart.min.js"></script>
+
+<!-- <script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script> -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script> -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script> -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script> -->
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <a class="navbar-brand" href="/">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Bang&#39;s Blog
+        </div>
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" id="changeNavbar">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+            <div class="nav-item">
+                
+                <a href="/" class="menu gt-a-link">
+                    首页
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/archives" class="menu gt-a-link">
+                    归档
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/tags" class="menu gt-a-link">
+                    标签
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/post/about" class="menu gt-a-link">
+                    关于
+                </a>
+                
+            </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1645855927533"
+                action="/search/">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+<script>
+    /* 移动端导航栏展开/收起切换 */
+    document.getElementById('changeNavbar').onclick = () => {
+        var element = document.getElementById('navbarSupportedContent');
+        if (element.style.display === 'none' || element.style.display === '') {
+            element.style.display = 'block';
+        } else {
+            element.style.display = 'none';
+        }
+    }
+</script>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    TypeScript 从集合论的角度理解类型系统
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2022-02-24 ·
+                    </time>
+                    
+                        <a href="https://wuwenbang.github.io/tag/2oeJ2NI0c/" class="post-tags">
+                            # TypeScript
+                        </a>
+                    
+                </div>
+                <div class="post-content">
+                    <h2 id="0-前言">0. 前言</h2>
+<p>在学习和使用 <code>TypeScript</code> 的过程中，有一些问题一直困惑着我：</p>
+<ol>
+<li>比如说<strong>联合类型</strong>与<strong>交叉类型</strong>在基础类型和对象类型上的不同表现：</li>
+</ol>
+<ul>
+<li>对于基础类型来说，联合类型是类型的并集，交叉类型是类型的交集。</li>
+</ul>
+<pre><code class="language-ts">// 联合类型
+type Union = string | number // Union = string | number
+// 交叉类型
+type Intersection = string &amp; number // Intersection = never
+</code></pre>
+<ul>
+<li>对于对象类型来说，联合类型是属性的交集（<strong>勘误：只有在被赋值的对象拥有全部属性的情况下，才表现为属性的交集</strong>），交叉类型是属性的并集。</li>
+</ul>
+<pre><code class="language-ts">interface A {
+  x: number
+  y: number
+}
+interface B {
+  y: number
+  z: number
+}
+// 联合类型
+type Union = A | B
+/* 
+Union = {
+  y: number
+}
+*/
+
+// 交叉类型
+type Intersection = A &amp; B
+/* 
+Intersection = {
+  x: number
+  y: number
+  z: number
+}
+*/
+</code></pre>
+<ol start="2">
+<li>再比如说条件类型的 <code>extends</code> 关键字到底是什么意思——可继承？可扩展？还是可赋值？</li>
+</ol>
+<pre><code class="language-ts">// extends =&gt; 可赋值 ？
+type T1 = string extends string | number ? true : false // T1 = true
+
+// extends =&gt; 可继承 ？
+interface ObjectA {
+  x: string
+  y: string
+}
+interface ObjectB {
+  x: string
+}
+type T2 = ObjectA extends ObjectB ? true : false // T2 = true
+</code></pre>
+<p>上述的例子确实令人困惑，或许我们应该换个角度去思考：尝试用集合论的角度去思考 <code>TypeScript</code> 的类型系统。</p>
+<h2 id="1-类型与集合">1. 类型与集合</h2>
+<p>在 <code>JavaScript</code> 里，<strong>类型</strong>是满足某些特征的<strong>值的集合</strong>。例如：</p>
+<ul>
+<li><code>number</code> 类型是是所有数字的集合。</li>
+<li><code>string</code> 类型是所有字符串的集合。</li>
+<li><code>bolean</code> 类型是 <code>true</code> 和 <code>false</code> 的集合。</li>
+<li><code>undefined</code> 类型是 <code>undefined</code> 的集合。</li>
+</ul>
+<p>总结一下就是：<strong>类型</strong> 对应集合论里的 <strong>集合</strong>，<strong>值</strong> 对应集合论里的 <strong>元素</strong>。<br><br>
+而在 <code>TypeScript</code> 里，我们可以给变量声明类型，并将对应类型的值赋予它。</p>
+<pre><code class="language-ts">let str: string = 'xxx'
+str = 'yyy'
+let num: number = 123
+num = 456
+</code></pre>
+<p>而对于对象的类型，也就是类（Class），集合的概念就非常容易混淆，我们来看下面一个例子：</p>
+<pre><code class="language-ts">interface A {
+  x: number
+}
+interface B {
+  x: number
+  y: number
+}
+const b: B = {
+  x: 1,
+  y: 2,
+}
+const a: A = b // ok
+</code></pre>
+<p>示例中，对象 <code>b</code> 的类型是 <code>{ x: number, y: number }</code>，但是它却可以赋值给类型为 <code>{ x: number }</code> 的变量 <code>a</code>。这看似不合理的现象，通过集合论的观点便可以解释：<br><br>
+我们把类 <code>A</code> 即 <code>{ x: number }</code> 看成<strong>所有拥有属性 <code>x: number</code> 的对象的集合</strong>，也就是说只要拥有属性 <code>x: number</code> 的对象都可以看成集合 <code>A</code> 的一个元素（或者类 <code>A</code> 的实例）。<br><br>
+那么因为 <code>b = { x:1, y:2 }</code> 拥有属性 <code>x: number</code> =&gt; 所以对象 <code>b</code> 是类 <code>A</code> 的一个实例 =&gt; 所以 <code>b</code> 可以赋值给类型为 <code>A</code> 的变量 <code>a</code>。<br><br>
+关于对象，我们必须清晰地知道：<strong>对象类型（类）是若干对象的集合，而不是属性的集合。只要一个对象具有类所描述的全部属性，那么该对象就是该类的元素（实例）。</strong><br></p>
+<h2 id="2-交叉类型与联合类型">2. 交叉类型与联合类型</h2>
+<ul>
+<li><strong>交叉类型（Intersection Types）</strong> 对应集合论的 <strong>交集（Intersection）</strong><br></li>
+<li><strong>联合类型（Union Types）</strong> 对应集合论的 <strong>并集（Union）</strong><br><br>
+（PS：从英文原文翻译的角度来看，我认为将 交叉类型与联合类型 翻译成 交集类型和并集类型 可能更加贴切。）<br></li>
+</ul>
+<h3 id="21-交叉类型与联合类型的简单运算">2.1 交叉类型与联合类型的简单运算</h3>
+<p>关于交叉类型 <code>&amp;</code> 和联合类型 <code>|</code> 的运算，我们来看一个简单的例子：</p>
+<pre><code class="language-ts">type A = 1 | 2
+type B = 2 | 3
+// A B 交集
+type C = A &amp; B // C = 2
+// A B 并集
+type D = A | B // D = 1 | 2 | 3
+// A number 交集
+type E = A &amp; number // E = A = 1 | 2
+// A number 并集
+type F = A | number // F = number
+// 空集 never
+type G = number &amp; string // G = never
+// 全集 unknown
+type H = number | unknown // H = unknown
+</code></pre>
+<ul>
+<li>A - F 符合集合论交集并集的运算规律</li>
+<li>G <code>never</code> 意为不会出现的类型，其符合空集的计算规律，遂可以理解为空集。</li>
+<li>H <code>unkonwn</code> 意为未知的类型，其符合全集的计算规律，遂可以理解为全集。</li>
+</ul>
+<p>集合论中交集与并集的运算特性，交叉类型和联合类型也满足：<br><br>
+对于交集运算符 <code>&amp;</code>：</p>
+<ol>
+<li>唯一性: <code>A &amp; A</code> 等价于 <code>A</code>.</li>
+<li>满足交换律: <code>A &amp; B</code> 等价于 <code>B &amp; A</code> .</li>
+<li>满足结合律: <code>(A &amp; B) &amp; C</code> 等价于 <code>A &amp; (B &amp; C)</code>.</li>
+<li>父类型收敛: 当且仅当 <code>B</code> 是 <code>A</code> 的父类型时，<code>A &amp; B</code> 等价于 <code>A</code>.</li>
+</ol>
+<p>对于并集运算符 <code>|</code>：</p>
+<ol>
+<li>唯一性: <code>A | A</code> 等价于 <code>A</code>.</li>
+<li>满足交换律: <code>A | B</code> 等价于 <code>B | A</code>.</li>
+<li>满足结合律: <code>(A | B) | C</code> 等价于 <code>A | (B | C)</code>.</li>
+<li>子类型收敛: 当且仅当 <code>B</code> 是 <code>A</code> 的子类型时，<code>A | B</code> 等价于 <code>A</code>.</li>
+</ol>
+<h3 id="22-交叉类型与联合类型高级运算">2.2 交叉类型与联合类型高级运算</h3>
+<p>对于对象类型的交叉类型和联合类型，同样符合集合论的规律：</p>
+<h4 id="交叉类型高级运算">交叉类型高级运算</h4>
+<pre><code class="language-ts">interface A {
+  x: number
+  y: number
+}
+interface B {
+  y: number
+  z: number
+}
+// 交叉类型
+type Intersection = B &amp; A
+
+const obj1: Intersection = {
+  x: 1,
+  y: 2,
+  z: 3,
+}
+
+obj1.x // ok
+obj1.y // ok
+obj1.z // ok
+</code></pre>
+<ul>
+<li>交叉类型 <code>Intersection</code> 是对象 <code>A</code> 和 <code>B</code> 的交集，是<strong>对象集合的交集</strong>，表现为拥有 <code>A</code> 和 <code>B</code> 的全部属性，是<strong>属性集合的并集</strong>。。</li>
+<li>赋值上：只有具有 <code>A</code> 和 <code>B</code> 所有的属性的对象才能赋值给 <code>Intersection</code>。</li>
+<li>访问上：交叉类型 <code>Intersection</code> 可以访问 <code>A</code> 和 <code>B</code> 的<strong>所有属性</strong>。</li>
+</ul>
+<h4 id="联合类型高级运算">联合类型高级运算</h4>
+<pre><code class="language-ts">interface A {
+  x: number
+  y: number
+}
+interface B {
+  y: number
+  z: number
+}
+// 联合类型
+type Union = B | A
+
+const obj1: Union = {
+  x: 1,
+  y: 2,
+  z: 3,
+}
+const obj2: Union = {
+  x: 1,
+  y: 2,
+}
+const obj3: Union = {
+  y: 2,
+  z: 3,
+}
+
+obj1.x // error
+obj1.y // ok
+obj1.z // error
+</code></pre>
+<ul>
+<li>联合类型 <code>Union</code> 是对象 <code>A</code> 和 <code>B</code> 的并集，即<strong>对象集合的并集</strong>。</li>
+<li>赋值上：具有 <code>A</code>或<code>B</code>或<code>A &amp; B</code> 的属性的对象能赋值给 <code>Union</code>。</li>
+<li>访问上：为了类型安全，当赋值为 <code>A</code> 或 <code>B</code> 时，联合类型 <code>Union</code> 只能访问 <code>A</code> 或 <code>B</code> ；当赋值为 <code>A &amp; B</code> 时（即全部属性），联合类型 <code>Union</code> 只能访问 <code>A</code> 和 <code>B</code> 的<strong>共有属性</strong>。</li>
+</ul>
+<h2 id="3-extends-关键字">3 extends 关键字</h2>
+<p>根据集合论，<code>A extends B</code> 的语意是： <code>A</code> 为 <code>B</code> 的<strong>子集</strong>。</p>
+<h3 id="31-extends-用作泛型约束">3.1 extends 用作泛型约束</h3>
+<ul>
+<li>表达式：<code>T extends U</code></li>
+<li>作用：泛型约束用作限制泛型的类型，即<code>泛型T</code>必须是<code>类型U</code>的子集，才能通过编译。</li>
+</ul>
+<pre><code class="language-ts">function needNumber&lt;T extends number&gt;(value: T): number {
+  return value + 1
+}
+// 满足 number 类型的子集
+needNumber(1) //ok
+// 不是 number 类型的子集
+needNumber('1') //error
+</code></pre>
+<p>对象类型同理：</p>
+<pre><code class="language-ts">interface Point {
+  x: number
+  y: number
+}
+function Sum&lt;T extends Point&gt;(value: T): number {
+  return value.x + value.y
+}
+// 满足 Point 类型的子集
+Sum({ x: 1, y: 2 }) // ok
+Sum({ x: 1, y: 2, z: 3 }) // ok
+// 不是 Point 类型的子集
+Sum({ x: 1 }) // error
+</code></pre>
+<h3 id="32-extends-用作条件泛型">3.2 extends 用作条件泛型</h3>
+<ul>
+<li>表达式：<code>T extends U ? X : Y</code></li>
+<li>作用：条件类型是一个三元运算表达式，如果 <code>T</code> 是 <code>U</code> 的子集，则表达式的值为 <code>X</code>，否则为 <code>U</code>。</li>
+</ul>
+<pre><code class="language-ts">type IsNumber&lt;T&gt; = T extends number ? true : false
+type Result1 = IsNumber&lt;1&gt; // true
+type Result2 = IsNumber&lt;'1'&gt; // false
+</code></pre>
+<p>对象类型同理：</p>
+<pre><code class="language-ts">interface Point {
+  x: number
+  y: number
+}
+type IsPointSubset&lt;T&gt; = T extends Point ? true : false
+type Result1 = IsPointSubset&lt;{ x: number; y: number }&gt; // true
+type Result2 = IsPointSubset&lt;{ x: number; z: number }&gt; // false
+</code></pre>
+<h2 id="4-参考资料">4. 参考资料</h2>
+<ul>
+<li><a href="https://typescript.bootcss.com/">TypeScript 中文手册</a></li>
+<li><a href="https://juejin.cn/post/6847902223402270728">Typescript 进击的基础（一）交叉类型和联合类型-集合论角度理解</a></li>
+</ul>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://wuwenbang.github.io/post/typescript-gong-ju-lei-xing/" class="post-title gt-a-link">
+                    TypeScript 工具类型
+                </a>
+            </div>
+        
+
+        
+
+        
+            
+                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css">
+<script src="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js"></script>
+<script>
+    // md5.min.js
+    !function(n){
+        "use strict";
+        function d(n,t){var r=(65535&n)+(65535&t);return(n>>16)+(t>>16)+(r>>16)<<16|65535&r}
+        function f(n,t,r,e,o,u){return d((c=d(d(t,n),d(e,u)))<<(f=o)|c>>>32-f,r);var c,f}
+        function l(n,t,r,e,o,u,c){return f(t&r|~t&e,n,t,o,u,c)}
+        function v(n,t,r,e,o,u,c){return f(t&e|r&~e,n,t,o,u,c)}
+        function g(n,t,r,e,o,u,c){return f(t^r^e,n,t,o,u,c)}
+        function m(n,t,r,e,o,u,c){return f(r^(t|~e),n,t,o,u,c)}
+        function i(n,t){var r,e,o,u,c;n[t>>5]|=128<<t%32,n[14+(t+64>>>9<<4)]=t;var f=1732584193,i=-271733879,a=-1732584194,h=271733878;for(r=0;r<n.length;r+=16)f=l(e=f,o=i,u=a,c=h,n[r],7,-680876936),h=l(h,f,i,a,n[r+1],12,-389564586),a=l(a,h,f,i,n[r+2],17,606105819),i=l(i,a,h,f,n[r+3],22,-1044525330),f=l(f,i,a,h,n[r+4],7,-176418897),h=l(h,f,i,a,n[r+5],12,1200080426),a=l(a,h,f,i,n[r+6],17,-1473231341),i=l(i,a,h,f,n[r+7],22,-45705983),f=l(f,i,a,h,n[r+8],7,1770035416),h=l(h,f,i,a,n[r+9],12,-1958414417),a=l(a,h,f,i,n[r+10],17,-42063),i=l(i,a,h,f,n[r+11],22,-1990404162),f=l(f,i,a,h,n[r+12],7,1804603682),h=l(h,f,i,a,n[r+13],12,-40341101),a=l(a,h,f,i,n[r+14],17,-1502002290),f=v(f,i=l(i,a,h,f,n[r+15],22,1236535329),a,h,n[r+1],5,-165796510),h=v(h,f,i,a,n[r+6],9,-1069501632),a=v(a,h,f,i,n[r+11],14,643717713),i=v(i,a,h,f,n[r],20,-373897302),f=v(f,i,a,h,n[r+5],5,-701558691),h=v(h,f,i,a,n[r+10],9,38016083),a=v(a,h,f,i,n[r+15],14,-660478335),i=v(i,a,h,f,n[r+4],20,-405537848),f=v(f,i,a,h,n[r+9],5,568446438),h=v(h,f,i,a,n[r+14],9,-1019803690),a=v(a,h,f,i,n[r+3],14,-187363961),i=v(i,a,h,f,n[r+8],20,1163531501),f=v(f,i,a,h,n[r+13],5,-1444681467),h=v(h,f,i,a,n[r+2],9,-51403784),a=v(a,h,f,i,n[r+7],14,1735328473),f=g(f,i=v(i,a,h,f,n[r+12],20,-1926607734),a,h,n[r+5],4,-378558),h=g(h,f,i,a,n[r+8],11,-2022574463),a=g(a,h,f,i,n[r+11],16,1839030562),i=g(i,a,h,f,n[r+14],23,-35309556),f=g(f,i,a,h,n[r+1],4,-1530992060),h=g(h,f,i,a,n[r+4],11,1272893353),a=g(a,h,f,i,n[r+7],16,-155497632),i=g(i,a,h,f,n[r+10],23,-1094730640),f=g(f,i,a,h,n[r+13],4,681279174),h=g(h,f,i,a,n[r],11,-358537222),a=g(a,h,f,i,n[r+3],16,-722521979),i=g(i,a,h,f,n[r+6],23,76029189),f=g(f,i,a,h,n[r+9],4,-640364487),h=g(h,f,i,a,n[r+12],11,-421815835),a=g(a,h,f,i,n[r+15],16,530742520),f=m(f,i=g(i,a,h,f,n[r+2],23,-995338651),a,h,n[r],6,-198630844),h=m(h,f,i,a,n[r+7],10,1126891415),a=m(a,h,f,i,n[r+14],15,-1416354905),i=m(i,a,h,f,n[r+5],21,-57434055),f=m(f,i,a,h,n[r+12],6,1700485571),h=m(h,f,i,a,n[r+3],10,-1894986606),a=m(a,h,f,i,n[r+10],15,-1051523),i=m(i,a,h,f,n[r+1],21,-2054922799),f=m(f,i,a,h,n[r+8],6,1873313359),h=m(h,f,i,a,n[r+15],10,-30611744),a=m(a,h,f,i,n[r+6],15,-1560198380),i=m(i,a,h,f,n[r+13],21,1309151649),f=m(f,i,a,h,n[r+4],6,-145523070),h=m(h,f,i,a,n[r+11],10,-1120210379),a=m(a,h,f,i,n[r+2],15,718787259),i=m(i,a,h,f,n[r+9],21,-343485551),f=d(f,e),i=d(i,o),a=d(a,u),h=d(h,c);return[f,i,a,h]}
+        function a(n){var t,r="",e=32*n.length;for(t=0;t<e;t+=8)r+=String.fromCharCode(n[t>>5]>>>t%32&255);return r}
+        function h(n){var t,r=[];for(r[(n.length>>2)-1]=void 0,t=0;t<r.length;t+=1)r[t]=0;var e=8*n.length;for(t=0;t<e;t+=8)r[t>>5]|=(255&n.charCodeAt(t/8))<<t%32;return r}
+        function e(n){var t,r,e="0123456789abcdef",o="";for(r=0;r<n.length;r+=1)t=n.charCodeAt(r),o+=e.charAt(t>>>4&15)+e.charAt(15&t);return o}
+        function r(n){return unescape(encodeURIComponent(n))}
+        function o(n){return a(i(h(t=r(n)),8*t.length));var t}
+        function u(n,t){return function(n,t){var r,e,o=h(n),u=[],c=[];for(u[15]=c[15]=void 0,16<o.length&&(o=i(o,8*n.length)),r=0;r<16;r+=1)u[r]=909522486^o[r],c[r]=1549556828^o[r];return e=i(u.concat(h(t)),512+8*t.length),a(i(c.concat(e),640))}(r(n),r(t))}
+        function t(n,t,r){return t?r?u(t,n):e(u(t,n)):r?o(n):e(o(n))}
+        "function"==typeof define&&define.amd?define(function(){return t}):"object"==typeof module&&module.exports?module.exports=t:n.md5=t;
+    }(this);
+</script>
+
+
+<div id="gitalk-container"></div>
+
+<script>
+
+  var gitalk = new Gitalk({
+    clientID: 'da1bff533ae46446be74',
+    clientSecret: 'f2c1b6b4d762aa2f8e3e6825aa8b4b9132f81991',
+    repo: 'wuwenbang.github.io',
+    owner: 'wuwenbang',
+    admin: ['wuwenbang'],
+    id: md5(location.pathname),      // Ensure uniqueness and length less than 50
+    distractionFreeMode: false       // Facebook-like distraction free mode
+  })
+
+  gitalk.render('gitalk-container')
+
+</script>
+
+            
+
+            
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">温故而知新</div>
+    <div class="social-container">
+        
+            
+                <a href="https://github.com/wuwenbang" target="_blank">
+                    <i class="fab fa-github gt-c-content-color-first"></i>
+                </a>
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://wuwenbang.github.io/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.highlightAll()
+</script>
+
+    </div>
+</div>
+</body>
+</html>
