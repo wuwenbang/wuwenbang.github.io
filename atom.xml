@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://wuwenbang.github.io</id>
     <title>核动力实验室</title>
-    <updated>2022-03-09T20:21:52.061Z</updated>
+    <updated>2022-03-09T20:32:12.198Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://wuwenbang.github.io"/>
     <link rel="self" href="https://wuwenbang.github.io/atom.xml"/>
@@ -185,6 +185,11 @@ module.exports = {
   ],
 };
 </code></pre>
+<h1 id="参考文档">参考文档</h1>
+<ul>
+<li><a href="https://webpack.js.org/concepts/plugin/">Webpack 官方文档 Plugin</a></li>
+<li><a href="https://juejin.cn/post/6844903918862860301">webpack 常用插件</a></li>
+</ul>
 ]]></content>
     </entry>
     <entry>
