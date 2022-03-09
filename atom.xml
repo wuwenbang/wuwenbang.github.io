@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://wuwenbang.github.io</id>
     <title>核动力实验室</title>
-    <updated>2022-02-26T08:55:26.859Z</updated>
+    <updated>2022-03-09T20:21:52.061Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://wuwenbang.github.io"/>
     <link rel="self" href="https://wuwenbang.github.io/atom.xml"/>
@@ -10,6 +10,296 @@
     <logo>https://wuwenbang.github.io/images/avatar.png</logo>
     <icon>https://wuwenbang.github.io/favicon.ico</icon>
     <rights>All rights reserved 2022, 核动力实验室</rights>
+    <entry>
+        <title type="html"><![CDATA[Webpack Plugin 浅析]]></title>
+        <id>https://wuwenbang.github.io/post/webpack-plugin-qian-xi/</id>
+        <link href="https://wuwenbang.github.io/post/webpack-plugin-qian-xi/">
+        </link>
+        <updated>2022-03-09T20:21:19.000Z</updated>
+        <content type="html"><![CDATA[<h1 id="plugin-是什么">Plugin 是什么</h1>
+<p>Plugin 是 Webpack 中的扩展器，在 Webpack 运行的生命周期中会广播出许多钩子事件，Plugin 可以监听这些事件，并挂载自己的任务，也就是注册事件。当 Webpack 构建的时候，插件注册的事件就会随着钩子的触发而执行了。</p>
+<h2 id="plugin-与-loader-的区别">Plugin 与 Loader 的区别</h2>
+<h3 id="plugin-与-loader-功能不同">Plugin 与 Loader 功能不同</h3>
+<ul>
+<li>Loader 是一个转换器：能够加载资源文件，并对这些文件进行一些处理，诸如编译、压缩等，最终一起打包到指定的文件中。</li>
+<li>Plugin 是一个扩展器：赋予了 webpack 各种灵活的功能，例如打包优化、资源管理、环境变量注入等，目的是解决 loader 无法实现的其他事。</li>
+</ul>
+<h3 id="plugin-与-loader-运行时机不同">Plugin 与 Loader 运行时机不同</h3>
+<p><img src="https://static.vue-js.com/9a04ec40-a7c2-11eb-ab90-d9ae814b240d.png" alt="image" loading="lazy"><br>
+可以看到，两者在运行时机上的区别：</p>
+<ul>
+<li>Loader 运行在打包文件之前</li>
+<li>Plugin 在整个编译周期都起作用</li>
+</ul>
+<h1 id="plugin-的使用">Plugin 的使用</h1>
+<h2 id="plugin-配置方式">Plugin 配置方式</h2>
+<p>在 <code>webpack.config.js</code> 文件中，通过 Webpack 配置对象的 <code>plugins</code> 属性进行配置，<code>plugins</code> 为一个数组，其元素要求为插件对象 Plugin 的实例，配置参数可以通过 Plugin 在实例化时的构造参数进行传递，例如配置 <code>html-webpack-plugin</code> 如下：</p>
+<pre><code class="language-js">const HtmlWebpackPlugin = require('html-webpack-plugin');
+module.exports = = {
+  entry: './index.js',
+  output: {
+    filename: 'bundle.js',
+    path: path.resolve(__dirname, 'dist'),
+  },
+  plugins: [
+    new HtmlWebpackPlugin({template: './src/index.html'}),
+  ],
+};
+</code></pre>
+<h2 id="常见的-plugin">常见的 Plugin</h2>
+<h3 id="1-html-webpack-pluginhtml-文件生成插件">1 html-webpack-plugin（HTML 文件生成插件）</h3>
+<ul>
+<li>背景：多入口时，当你的 <code>index.html</code> 引入多个 <code>js</code> 文件，如果这些生成的 <code>js</code> 名称构成有 <code>[hash]</code> ，那么每次打包后的文件名都是变化的。</li>
+<li>作用：可以用于自动重新生成一个 <code>index.html</code> ，并帮你把所有生产的 <code>js</code> 文件引入到 <code>html</code> 中，最终生成到 <code>output</code> 目录。</li>
+<li>安装：</li>
+</ul>
+<pre><code class="language-sh">yarn add --dev html-webpack-plugin
+</code></pre>
+<ul>
+<li>配置：</li>
+</ul>
+<pre><code class="language-js">//引入
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+//配置
+module.exports = = {
+  // ...
+  plugins: [
+    new HtmlWebpackPlugin(),
+  ],
+};
+</code></pre>
+<h3 id="2-mini-css-extract-plugincss-提取插件">2 mini-css-extract-plugin（css 提取插件）</h3>
+<ul>
+<li>背景：在进行打包时，CSS 代码会打包到 JS 中，不利于文件缓存。</li>
+<li>作用：依据每个 entry 生成单个 CSS 文件（将 CSS 从 JS 中提取出来）。</li>
+<li>安装：</li>
+</ul>
+<pre><code class="language-sh">yarn add --dev mini-css-extract-plugin
+</code></pre>
+<ul>
+<li>配置：</li>
+</ul>
+<pre><code class="language-js">const MiniCssExtractPlugin  = require('mini-css-extract-plugin');
+module.exports = = {
+  // ...
+  plugins: [
+    new MiniCssExtractPlugin(),
+  ],
+};
+
+</code></pre>
+<h3 id="3-imagemin-webpack-plugin图片压缩插件">3 imagemin-webpack-plugin（图片压缩插件）</h3>
+<ul>
+<li>背景：图片过大，加载速度慢，浪费存储空间。</li>
+<li>作用：批量压缩图片。</li>
+<li>安装：</li>
+</ul>
+<pre><code class="language-sh">yarn add --dev imagemin-webpack-plugin
+</code></pre>
+<ul>
+<li>配置：</li>
+</ul>
+<pre><code class="language-js">const ImageminPlugin = require('imagemin-webpack-plugin').default;
+module.exports = {
+  // ...
+  plugins: [
+    new ImageminPlugin({
+      disable: process.env.NODE_ENV !== 'production', // 开发时不启用
+      pngquant: {
+        //图片质量
+        quality: '95-100',
+      },
+    }),
+  ],
+};
+</code></pre>
+<h3 id="4-clean-webpack-plugin清空文件夹插件">4 clean-webpack-plugin（清空文件夹插件）</h3>
+<ul>
+<li>背景：每次进行打包需要手动清空目标文件夹。</li>
+<li>作用：每次打包时先清空 <code>output</code> 文件夹。</li>
+<li>安装：</li>
+</ul>
+<pre><code class="language-sh">yarn add --dev clean-webpack-plugin
+</code></pre>
+<ul>
+<li>配置：</li>
+</ul>
+<pre><code class="language-js">const CleanWebpackPlugin = require('clean-webpack-plugin');
+module.exports = {
+  // ...
+  output: {
+    filename: 'bundle.js',
+    path: path.resolve(__dirname, 'dist'),
+  },
+  // 自动清空 dist 文件夹
+  plugins: [new CleanWebpackPlugin(['dist'])],
+};
+</code></pre>
+<h3 id="5-copy-webpack-plugin文件复制插件">5 copy-webpack-plugin（文件复制插件）</h3>
+<ul>
+<li>背景：一些静态资源（图片、字体等），在编译时，需要拷贝到输出文件夹。</li>
+<li>作用：用来复制文件或文件夹。</li>
+<li>安装：</li>
+</ul>
+<pre><code class="language-sh">yarn add --dev copy-webpack-plugin
+</code></pre>
+<ul>
+<li>配置：</li>
+</ul>
+<pre><code class="language-js">// 引入
+const CopyPlugin = require('copy-webpack-plugin');
+
+module.exports = {
+  // ...
+  plugins: [
+    new CopyPlugin([
+      { from: 'assets', to: 'dist' },
+      { from: 'images/xxx.png', to: 'dist' },
+    ]),
+  ],
+};
+</code></pre>
+<h3 id="6-compression-webpack-plugingzip-压缩插件">6 compression-webpack-plugin（gzip 压缩插件）</h3>
+<ul>
+<li>背景：所有现代浏览器都支持 <code>gzip</code> 压缩，启用 <code>gzip</code> 压缩可大幅缩减传输资源大小，从而缩短资源下载时间，减少首次白屏时间，提升用户体验。</li>
+<li>作用：用来对一些文本文件（JS CSS HTML）文件进行 <code>gzip</code> 压缩。</li>
+<li>安装：</li>
+</ul>
+<pre><code class="language-sh">yarn add --dev compression-webpack-plugin
+</code></pre>
+<ul>
+<li>配置：</li>
+</ul>
+<pre><code class="language-js">// 引入
+const CompressionPlugin = require('compression-webpack-plugin');
+
+module.exports = {
+  // ...
+  plugins: [
+    new CompressionPlugin({
+      // gzip压缩配置
+      test: /\.js$|\.html$|\.css/, // 匹配文件名
+      threshold: 10240, // 对超过10kb的数据进行压缩
+      deleteOriginalAssets: false, // 是否删除原文件
+    }),
+  ],
+};
+</code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Webpack Loader 浅析]]></title>
+        <id>https://wuwenbang.github.io/post/webpack-loader-qian-xi/</id>
+        <link href="https://wuwenbang.github.io/post/webpack-loader-qian-xi/">
+        </link>
+        <updated>2022-03-09T20:17:52.000Z</updated>
+        <content type="html"><![CDATA[<h1 id="1-loader-是什么">1 Loader 是什么</h1>
+<p>Loader 是 Webpack 中的文件加载器。</p>
+<h2 id="loader-的作用">Loader 的作用</h2>
+<p>Webpack 是一个模块化打包工具，但是其只能直接处理 JavaScript 格式的代码。任何非 JavaScript 文件（例如 TypeScript CSS SASS JSX）都必须被预先处理转换为 JavaScript 代码，才可以参与打包。而 Loader 文件加载器，能够加载资源文件，并对这些文件进行特定的处理，然后打包的指定文件中。</p>
+<p>例如 <code>ts-loader</code> 可以将 TypeScript 转换为 JavaScript 代码：</p>
+<p>TypeScript -&gt; (ts-loader) -&gt; JavaScript</p>
+<h2 id="loader-的本质">Loader 的本质</h2>
+<p>Loader 本质上是导出函数的 JavaScript 模块：</p>
+<pre><code class="language-js">/**
+ * @param {string|Buffer} content 源文件的内容
+ * @param {object} [map]  SourceMap 数据，用于定位源码
+ * @param {any} [meta] meta 数据，可以是任何内容
+ */
+function webpackLoader(content, map, meta) {
+  // 你的webpack loader代码
+}
+module.exports = webpackLoader;
+</code></pre>
+<p>基于所导出的函数，我们可以实现对源文件内容 <code>content</code> 的转换：函数 <code>return</code> 的就是转换的结果。</p>
+<h1 id="2-loader-使用方式">2 Loader 使用方式</h1>
+<h2 id="loader-三种使用方式">Loader 三种使用方式</h2>
+<ol>
+<li>配置（推荐）：在 <code>webpack.config.js</code> 文件中指定 loader。</li>
+</ol>
+<pre><code class="language-js">module.exports = {
+  module: {
+    rules: [
+      {
+        test: /\.css$/,
+        use: [
+          { loader: 'style-loader' },
+          {
+            loader: 'css-loader',
+            options: {
+              modules: true,
+            },
+          },
+        ],
+      },
+    ],
+  },
+};
+</code></pre>
+<ol start="2">
+<li>内联：在每个 import 语句中显式指定 loader。<br>
+可以在 <code>import</code> 语句或任何等效于 &quot;import&quot; 的方式中指定 loader。使用 <code>!</code> 将资源中的 loader 分开。分开的每个部分都相对于当前目录解析。</li>
+</ol>
+<pre><code class="language-js">import Styles from 'style-loader!css-loader?modules!./styles.css';
+</code></pre>
+<ol start="3">
+<li>命令行：在 shell 命令中指定它们。</li>
+</ol>
+<pre><code class="language-sh">webpack --module-bind 'css=style-loader!css-loader'
+</code></pre>
+<p>这样会对 <code>.css</code> 文件使用 <code>style-loader</code> 和 <code>css-loader</code>。</p>
+<h2 id="loader-执行顺序">Loader 执行顺序</h2>
+<p>Loader 遵循如下规则执行：从右到左，从下到上。</p>
+<p>例如上述 Loader 的执行顺序就是： css-loader -&gt; style-loader。</p>
+<h1 id="3-webpack-常用-loader">3 Webpack 常用 Loader</h1>
+<ul>
+<li>样式：style-loader、css-loader、sass-loader 等</li>
+<li>文件：raw-loader、file-loader、url-loader 等</li>
+<li>编译：babel-loader、vue-loader、ts-loader 等</li>
+<li>校验测试：eslint-loader、mocha-loader 等</li>
+</ul>
+<h2 id="样式-loader">样式 Loader</h2>
+<p>例如我们需要处理 <code>.sass</code> 文件，则需要经历一下三个 Loader ：</p>
+<ol>
+<li>sass-loader: 将 <code>.sass</code> 文件转换为 <code>.css</code> 文件</li>
+<li>css-loader: 将<code>.css</code> 文件内容转换为 JS 的字符串并作为 JS 模块导出</li>
+<li>style-loader: 将 <code>css</code> 字符串以 <code>style</code> 标签的方式插入 DOM 树中</li>
+</ol>
+<p>实现以上三个 Loader 的配置如下：</p>
+<pre><code class="language-js">module.exports = {
+  module: {
+    rules: [
+      {
+        test: /\.s[ca]ss$/,
+        use: ['style-loader', 'css-loader', 'sass-loader'],
+      },
+    ],
+  },
+};
+</code></pre>
+<h2 id="文件-loader">文件 Loader</h2>
+<ul>
+<li>raw-loader：加载文件原始内容（utf-8），返回 <code>JSON.stringify</code> 后的内容。</li>
+<li>file-loader：主要作用是将指定文件拷贝到输出文件夹。</li>
+<li>url-loader：url-loader 在 file-loader 的基础上加了一个 <code>data URL</code> 的功能。传给 url-loader 一个限制值，如果处理的文件小于这个值，loader 将会把文件转化为 <code>base64</code> 的 <code>data URL</code> 输出。大于限制的文件则交给引入的 file-loader 处理。</li>
+</ul>
+<h2 id="编译-loader">编译 Loader</h2>
+<ul>
+<li>babel-loader：默认用来处理 ES6 语法，将其编译为浏览器可以执行的 JS 语法。</li>
+<li>vue-loader：用来将 <code>.vue</code> 文件处理为 JS 可以识别的模块。</li>
+<li>ts-loader：用来将 <code>.ts</code> 文件处理为 JS 可以识别的语法。</li>
+</ul>
+<h2 id="校验测试-loader">校验测试 Loader</h2>
+<ul>
+<li>eslint-loader：允许 Eslitn 对 JS 文件做语法检查。</li>
+<li>mocha-loader：允许通过 Webpack 加载和运行 <code>Mocha Test</code>。</li>
+</ul>
+<h1 id="参考文档">参考文档</h1>
+<ul>
+<li><a href="https://webpack.js.org/concepts/loaders/">Webpack 官方文档 Loaders</a></li>
+</ul>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[Reack Hooks 从函数的角度去理解]]></title>
         <id>https://wuwenbang.github.io/post/reack-hooks-cong-han-shu-de-jiao-du-qu-li-jie/</id>
@@ -2328,270 +2618,6 @@ type Bar = { prop: string };
 <ul>
 <li><a href="https://typescript.bootcss.com/interfaces.html">TypeScript 中文手冊</a></li>
 <li><a href="https://juejin.cn/post/6844904114925600776#heading-11">TypeScript Interface vs Type 知多少</a></li>
-</ul>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[TypeScript 基础类型]]></title>
-        <id>https://wuwenbang.github.io/post/typescript-ji-chu-lei-xing/</id>
-        <link href="https://wuwenbang.github.io/post/typescript-ji-chu-lei-xing/">
-        </link>
-        <updated>2022-02-24T13:31:44.000Z</updated>
-        <content type="html"><![CDATA[<ol>
-<li>Number 类型</li>
-</ol>
-<pre><code class="language-ts">let count: number = 10;
-// ES5：var count = 10;
-</code></pre>
-<h3 id="2-string-类型">2. String 类型</h3>
-<pre><code class="language-ts">let name: string = &quot;hello world&quot;;
-// ES5：var name = 'hello world';
-</code></pre>
-<h3 id="3-boolean-类型">3. Boolean 类型</h3>
-<pre><code class="language-ts">let isCheck: boolean = false;
-// ES5：var isCheck = false;
-</code></pre>
-<h3 id="4-symbol-类型">4. Symbol 类型</h3>
-<pre><code class="language-ts">const sym = Symbol();
-let obj = {
-  [sym]: &quot;hello world&quot;,
-};
-
-console.log(obj[sym]); // hello world
-</code></pre>
-<h3 id="5-null-和-undefined-类型">5. Null 和 Undefined 类型</h3>
-<p>TypeScript 里，<code>undefined</code> 和 <code>null</code> 两者有各自的类型分别为 <code>undefined</code> 和 <code>null</code>。</p>
-<pre><code class="language-ts">let u: undefined = undefined;
-let n: null = null;
-</code></pre>
-<h3 id="6-array-类型">6. Array 类型</h3>
-<p>TypeScript 里，数组类型有两种表达形式：</p>
-<ol>
-<li>直接表示：<code>type[]</code>。</li>
-<li>用泛型的方式表示：<code>Array&lt;type&gt;</code>。</li>
-</ol>
-<pre><code class="language-ts">let array: number[] = [1, 2, 3];
-// ES5：var array = [1,2,3];
-
-let array: Array&lt;number&gt; = [1, 2, 3]; // Array&lt;number&gt;泛型语法
-// ES5：var array = [1,2,3];
-</code></pre>
-<h3 id="7-tuple元组-类型">7. Tuple（元组） 类型</h3>
-<p><code>数组（Array）</code>合并了相同类型的值，而<code>元组（Tuple）</code>合并了不同类型的值</p>
-<pre><code class="language-ts">let array: number[] = [100, 200];
-let tuple: [number, string] = [100, &quot;200&quot;];
-</code></pre>
-<p>当赋值或访问一个已知索引的元素时，会得到正确的类型：</p>
-<pre><code class="language-ts">let tuple: [string, number];
-tuple[0] = &quot;Jack&quot;;
-tuple[1] = 22;
-
-tuple[0].substr(1); //String独有方法
-tuple[1].toFixed(2); //Number独有方法
-</code></pre>
-<p><code>元组（Tuple）</code>类型是固定长度，固定类型的</p>
-<pre><code class="language-ts">let tuple: [string, number];
-tuple = [&quot;jack&quot;]; //❌
-tuple = [100, &quot;juck&quot;]; //❌
-tuple = [&quot;juck&quot;, 100]; //✅
-</code></pre>
-<p><code>React</code>中的<code>useState</code>返回的就是元组类型：</p>
-<pre><code class="language-ts">// 类型定义：返回元组类型 [S, Dispatch&lt;SetStateAction&lt;S&gt;&gt;]
-function useState&lt;S&gt;(
-  initialState: S | (() =&gt; S)
-): [S, Dispatch&lt;SetStateAction&lt;S&gt;&gt;];
-// 元组：解构赋值
-const [state, setState] = useState(0);
-</code></pre>
-<p>总结：<code>数组（Array）</code>和<code>元组（Tuple）</code>的差异：</p>
-<ol>
-<li><code>Array</code>类型统一，<code>Tuple</code>类型可以不一。</li>
-<li><code>Array</code>长度不限，<code>Tuple</code>长度限定。</li>
-</ol>
-<h3 id="8-enum枚举类型">8. Enum（枚举）类型</h3>
-<p>使用枚举我们可以定义一些带名字的常量，以表达限定在一定范围内值。 TypeScript 支持数字的和基于字符串的枚举。</p>
-<h4 id="1-数字枚举">1. 数字枚举</h4>
-<pre><code class="language-ts">enum Direction {
-  NORTH,
-  SOUTH,
-  EAST,
-  WEST,
-}
-
-let dir: Direction = Direction.NORTH; //let dir = 0
-</code></pre>
-<p>默认情况下，<code>NORTH</code> 的初始值为 <code>0</code>，其余的成员会自动<code>+1</code>增长。换句话说，<code>Direction.SOUTH</code>值为<code>1</code>，<code>Direction.EAST</code>值为<code>2</code>，<code>Direction.WEST</code>值为<code>3</code>。</p>
-<p>当然我们也可以设置 NORTH 的初始值，比如：</p>
-<pre><code class="language-ts">enum Direction {
-  NORTH = 3,
-  SOUTH, //4
-  EAST, //5
-  WEST, //6
-}
-</code></pre>
-<h4 id="2-字符串枚举">2. 字符串枚举</h4>
-<p>在 TypeScript 2.4 版本，允许我们使用字符串枚举。在一个字符串枚举里，每个成员都必须用字符串字面量，或另外一个字符串枚举成员进行初始化。</p>
-<pre><code class="language-ts">enum Direction {
-  NORTH = &quot;NORTH&quot;,
-  SOUTH = &quot;SOUTH&quot;,
-  EAST = &quot;EAST&quot;,
-  WEST = &quot;WEST&quot;,
-}
-let dir: Direction = Direction.NORTH; //let dir = 'NORTH'
-</code></pre>
-<p>比起<code>枚举</code>类型，我更推荐使用<code>联合类型</code>来表达对于一组值的约束：</p>
-<pre><code class="language-ts">const Direction = &quot;NORTH&quot; | &quot;SOUTH&quot; | &quot;EAST&quot; | &quot;WEST&quot;;
-let dir: Direction = &quot;NORTH&quot;;
-</code></pre>
-<h3 id="9-object-类型">9. Object 类型</h3>
-<p><code>Object 类型</code>：它是所有 <code>Object</code> 类的实例的类型，它由以下两个接口来定义：</p>
-<ol>
-<li><code>Object</code> 接口定义了 <code>Object.prototype</code> 原型对象上的属性；</li>
-</ol>
-<pre><code class="language-ts">// node_modules/typescript/lib/lib.es5.d.ts
-interface Object {
-  constructor: Function;
-  toString(): string;
-  toLocaleString(): string;
-  valueOf(): Object;
-  hasOwnProperty(v: PropertyKey): boolean;
-  isPrototypeOf(v: Object): boolean;
-  propertyIsEnumerable(v: PropertyKey): boolean;
-}
-</code></pre>
-<ol start="2">
-<li><code>ObjectConstructor</code> 接口定义了 <code>Object</code> 类的属性。</li>
-</ol>
-<pre><code class="language-ts">// node_modules/typescript/lib/lib.es5.d.ts
-interface ObjectConstructor {
-  /** Invocation via `new` */
-  new (value?: any): Object;
-  /** Invocation via function calls */
-  (value?: any): any;
-  readonly prototype: Object;
-  getPrototypeOf(o: any): any;
-  // ···
-}
-</code></pre>
-<p><code>Object</code> 类的所有实例都继承了 <code>Object</code> 接口中的所有属性。</p>
-<h3 id="10-any-类型">10. Any 类型</h3>
-<p>在 <code>TypeScript</code> 中，任何类型都可以被归为 <code>any</code> 类型。这让 <code>any</code> 类型成为了类型系统的顶级类型（也被称作全局超级类型）。</p>
-<pre><code class="language-ts">let value: any = 666;
-value = &quot;hello&quot;;
-value = false;
-value = {};
-value = [];
-</code></pre>
-<p><code>any</code>类型为从<code>JavaScript</code>到<code>TypeScript</code>提供了平稳的过渡方式：你可以将任意类型赋值给<code>any</code>类型，同时也可以对 <code>any</code> 类型的值执行任何操作，而无需做任何形式的静态类型检查。</p>
-<pre><code class="language-ts">let value: any;
-
-value.foo.bar; //✅
-value.trim(); // ✅
-value(); // ✅
-new value(); // ✅
-value[0][1]; // ✅
-</code></pre>
-<p>在许多场景下，这太宽松了。使用 <code>any</code> 类型，可以很容易地编写类型正确但在运行时有问题的代码。如果我们使用 <code>any</code> 类型，就无法使用 <code>TypeScript</code> 提供的大量的保护机制。为了解决 <code>any</code> 带来的问题，<code>TypeScript 3.0</code> 引入了 <code>unknown</code> 类型。</p>
-<h3 id="11-unknown-类型">11. Unknown 类型</h3>
-<p>就像所有类型都可以赋值给 <code>any</code>，所有类型也都可以赋值给 <code>unknown</code>。</p>
-<pre><code class="language-ts">let value: unknown = 666;
-value = &quot;hello&quot;;
-value = false;
-value = {};
-value = [];
-</code></pre>
-<p>但是你不能将<code>unknown</code>类型赋值给一个已经确定的类型：即<code>unknown</code> 类型只能被赋值给 <code>any</code> 类型和 <code>unknown</code> 类型本身。</p>
-<pre><code class="language-ts">let value: unknown;
-
-let value1: unknown = value; // ✅
-let value2: any = value; // ✅
-let value3: boolean = value; // ❌
-let value4: number = value; // ❌
-let value5: string = value; // ❌
-let value6: object = value; // ❌
-let value7: any[] = value; // ❌
-let value8: Function = value; // ❌
-</code></pre>
-<p>同时<code>unknown</code>也无法像<code>any</code>那样执行任意操作：</p>
-<pre><code class="language-ts">let value: unknown;
-
-value.foo.bar; // ❌
-value.trim(); // ❌
-value(); // ❌
-new value(); // ❌
-value[0][1]; // ❌
-</code></pre>
-<p>总结：<code>any</code>类型和<code>unknown</code>类型的异同：</p>
-<table>
-<thead>
-<tr>
-<th>类型</th>
-<th>any</th>
-<th>unknown</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>被赋值</td>
-<td>可以被赋予任意值</td>
-<td>可以被赋予任意值</td>
-</tr>
-<tr>
-<td>赋值</td>
-<td>可以赋值给任意变量</td>
-<td>只能赋值给 <code>any</code> 和 <code>unknown</code> 类型变量</td>
-</tr>
-<tr>
-<td>操作</td>
-<td>可以进行任意操作</td>
-<td>所有操作被禁止</td>
-</tr>
-</tbody>
-</table>
-<h3 id="12-void-类型">12. Void 类型</h3>
-<p>某种程度上来说，<code>void</code> 类型像是与 <code>any</code> 类型相反，它表示没有任何类型。当一个函数没有返回值时，你通常会见到其返回值类型是 <code>void</code>：</p>
-<pre><code class="language-ts">function doSomething(): void {
-  console.log(&quot;do something&quot;);
-}
-</code></pre>
-<p>需要注意的是，声明一个 <code>void</code> 类型的变量没有什么作用，因为在严格模式下，它的值只能为 <code>undefined：</code></p>
-<pre><code class="language-ts">let unusable: void = undefined;
-</code></pre>
-<h3 id="13-never-类型">13. Never 类型</h3>
-<p><code>never</code> 类型表示的是那些永不存在的值的类型。<br>
-例如，<code>never</code> 类型是那些总是会抛出异常或根本就不会有返回值的函数表达式或箭头函数表达式的返回值类型。</p>
-<pre><code class="language-ts">// function 永远不会返回
-function error(message: string): never {
-  throw new Error(message);
-}
-</code></pre>
-<p>又如，基础类型的<code>交叉类型</code>返回的也是<code>never</code>，应为他们之间永远不存在交集：</p>
-<pre><code class="language-ts">let value = &quot;1&quot; &amp; 1; // never
-</code></pre>
-<p>在 <code>TypeScript</code> 中，可以利用 <code>never</code> 类型的特性来实现全面性检查，具体示例如下：</p>
-<pre><code class="language-ts">type Foo = string | number;
-
-function controlFlowAnalysisWithNever(foo: Foo) {
-  if (typeof foo === &quot;string&quot;) {
-    // 这里 foo 被收窄为 string 类型
-  } else if (typeof foo === &quot;number&quot;) {
-    // 这里 foo 被收窄为 number 类型
-  } else {
-    // foo 在这里是 never
-    const check: never = foo;
-  }
-}
-</code></pre>
-<p>注意在 <code>else</code> 分支里面，我们把收窄为 <code>never</code> 的 <code>foo</code> 赋值给一个显示声明的 <code>never</code> 变量。如果一切逻辑正确，那么这里应该能够编译通过。但是假如后来有一天你的同事修改了 <code>Foo</code> 的类型：</p>
-<pre><code class="language-ts">type Foo = string | number | boolean;
-</code></pre>
-<p>然而他忘记同时修改 <code>controlFlowAnalysisWithNever</code> 方法中的控制流程，这时候 <code>else</code> 分支的 <code>foo</code> 类型会被收窄为 <code>boolean</code> 类型，导致无法赋值给 <code>never</code> 类型，这时就会产生一个编译错误。通过这个方式，我们可以确保<br>
-<code>controlFlowAnalysisWithNever</code> 方法总是穷尽了 <code>Foo</code> 的所有可能类型。<br>
-通过这个示例，我们可以得出一个结论：使用 <code>never</code> 避免出现新增了<code>联合类型</code>没有对应的实现，目的就是写出类型绝对安全的代码。</p>
-<h2 id="参考文章">参考文章</h2>
-<ul>
-<li><a href="https://typescript.bootcss.com/basic-types.html">TypeScript 中文手册</a></li>
-<li><a href="https://juejin.cn/post/6872111128135073806#heading-28">一份不可多得的 TS 学习指南</a></li>
 </ul>
 ]]></content>
     </entry>

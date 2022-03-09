@@ -1,11 +1,10 @@
 <html>
-
 <head>
     <meta charset="utf-8" />
 <meta name="description" content="" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-<title>友情链接 | 核动力实验室</title>
+<title>Webpack Plugin 浅析 | 核动力实验室</title>
 
 <link rel="shortcut icon" href="https://wuwenbang.github.io/favicon.ico?v=1646857306451">
 
@@ -26,12 +25,11 @@
 
 
 
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
 </head>
-
 <body>
 <div class="main gt-bg-theme-color-first">
-        <div class="main-content">
-            <nav class="navbar navbar-expand-lg">
+    <nav class="navbar navbar-expand-lg">
     <a class="navbar-brand" href="/">
         <img class="user-avatar" src="/images/avatar.png" alt="头像">
         <div class="site-name gt-c-content-color-first">
@@ -99,25 +97,211 @@
     }
 </script>
 
-            <div class="post-container">
-                <div class="post-detail">
-                    <article>
-                        <!-- <div class="post-content-wrapper"> -->
-                            <div class="post-content">
-                                <div class="friends-desc">
-                                    
-                                </div>
-                                <h3 id="linklist">友链列表</h3>
-                                
-                                    
-                                
-                            </div>
-                        <!-- </div> -->
-                    </article>
-                </div>
-                
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    Webpack Plugin 浅析
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2022-03-10 ·
+                    </time>
                     
-                        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css">
+                        <a href="https://wuwenbang.github.io/tag/sOMGIMqAO/" class="post-tags">
+                            # Webpack
+                        </a>
+                    
+                </div>
+                <div class="post-content">
+                    <h1 id="plugin-是什么">Plugin 是什么</h1>
+<p>Plugin 是 Webpack 中的扩展器，在 Webpack 运行的生命周期中会广播出许多钩子事件，Plugin 可以监听这些事件，并挂载自己的任务，也就是注册事件。当 Webpack 构建的时候，插件注册的事件就会随着钩子的触发而执行了。</p>
+<h2 id="plugin-与-loader-的区别">Plugin 与 Loader 的区别</h2>
+<h3 id="plugin-与-loader-功能不同">Plugin 与 Loader 功能不同</h3>
+<ul>
+<li>Loader 是一个转换器：能够加载资源文件，并对这些文件进行一些处理，诸如编译、压缩等，最终一起打包到指定的文件中。</li>
+<li>Plugin 是一个扩展器：赋予了 webpack 各种灵活的功能，例如打包优化、资源管理、环境变量注入等，目的是解决 loader 无法实现的其他事。</li>
+</ul>
+<h3 id="plugin-与-loader-运行时机不同">Plugin 与 Loader 运行时机不同</h3>
+<p><img src="https://static.vue-js.com/9a04ec40-a7c2-11eb-ab90-d9ae814b240d.png" alt="image" loading="lazy"><br>
+可以看到，两者在运行时机上的区别：</p>
+<ul>
+<li>Loader 运行在打包文件之前</li>
+<li>Plugin 在整个编译周期都起作用</li>
+</ul>
+<h1 id="plugin-的使用">Plugin 的使用</h1>
+<h2 id="plugin-配置方式">Plugin 配置方式</h2>
+<p>在 <code>webpack.config.js</code> 文件中，通过 Webpack 配置对象的 <code>plugins</code> 属性进行配置，<code>plugins</code> 为一个数组，其元素要求为插件对象 Plugin 的实例，配置参数可以通过 Plugin 在实例化时的构造参数进行传递，例如配置 <code>html-webpack-plugin</code> 如下：</p>
+<pre><code class="language-js">const HtmlWebpackPlugin = require('html-webpack-plugin');
+module.exports = = {
+  entry: './index.js',
+  output: {
+    filename: 'bundle.js',
+    path: path.resolve(__dirname, 'dist'),
+  },
+  plugins: [
+    new HtmlWebpackPlugin({template: './src/index.html'}),
+  ],
+};
+</code></pre>
+<h2 id="常见的-plugin">常见的 Plugin</h2>
+<h3 id="1-html-webpack-pluginhtml-文件生成插件">1 html-webpack-plugin（HTML 文件生成插件）</h3>
+<ul>
+<li>背景：多入口时，当你的 <code>index.html</code> 引入多个 <code>js</code> 文件，如果这些生成的 <code>js</code> 名称构成有 <code>[hash]</code> ，那么每次打包后的文件名都是变化的。</li>
+<li>作用：可以用于自动重新生成一个 <code>index.html</code> ，并帮你把所有生产的 <code>js</code> 文件引入到 <code>html</code> 中，最终生成到 <code>output</code> 目录。</li>
+<li>安装：</li>
+</ul>
+<pre><code class="language-sh">yarn add --dev html-webpack-plugin
+</code></pre>
+<ul>
+<li>配置：</li>
+</ul>
+<pre><code class="language-js">//引入
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+//配置
+module.exports = = {
+  // ...
+  plugins: [
+    new HtmlWebpackPlugin(),
+  ],
+};
+</code></pre>
+<h3 id="2-mini-css-extract-plugincss-提取插件">2 mini-css-extract-plugin（css 提取插件）</h3>
+<ul>
+<li>背景：在进行打包时，CSS 代码会打包到 JS 中，不利于文件缓存。</li>
+<li>作用：依据每个 entry 生成单个 CSS 文件（将 CSS 从 JS 中提取出来）。</li>
+<li>安装：</li>
+</ul>
+<pre><code class="language-sh">yarn add --dev mini-css-extract-plugin
+</code></pre>
+<ul>
+<li>配置：</li>
+</ul>
+<pre><code class="language-js">const MiniCssExtractPlugin  = require('mini-css-extract-plugin');
+module.exports = = {
+  // ...
+  plugins: [
+    new MiniCssExtractPlugin(),
+  ],
+};
+
+</code></pre>
+<h3 id="3-imagemin-webpack-plugin图片压缩插件">3 imagemin-webpack-plugin（图片压缩插件）</h3>
+<ul>
+<li>背景：图片过大，加载速度慢，浪费存储空间。</li>
+<li>作用：批量压缩图片。</li>
+<li>安装：</li>
+</ul>
+<pre><code class="language-sh">yarn add --dev imagemin-webpack-plugin
+</code></pre>
+<ul>
+<li>配置：</li>
+</ul>
+<pre><code class="language-js">const ImageminPlugin = require('imagemin-webpack-plugin').default;
+module.exports = {
+  // ...
+  plugins: [
+    new ImageminPlugin({
+      disable: process.env.NODE_ENV !== 'production', // 开发时不启用
+      pngquant: {
+        //图片质量
+        quality: '95-100',
+      },
+    }),
+  ],
+};
+</code></pre>
+<h3 id="4-clean-webpack-plugin清空文件夹插件">4 clean-webpack-plugin（清空文件夹插件）</h3>
+<ul>
+<li>背景：每次进行打包需要手动清空目标文件夹。</li>
+<li>作用：每次打包时先清空 <code>output</code> 文件夹。</li>
+<li>安装：</li>
+</ul>
+<pre><code class="language-sh">yarn add --dev clean-webpack-plugin
+</code></pre>
+<ul>
+<li>配置：</li>
+</ul>
+<pre><code class="language-js">const CleanWebpackPlugin = require('clean-webpack-plugin');
+module.exports = {
+  // ...
+  output: {
+    filename: 'bundle.js',
+    path: path.resolve(__dirname, 'dist'),
+  },
+  // 自动清空 dist 文件夹
+  plugins: [new CleanWebpackPlugin(['dist'])],
+};
+</code></pre>
+<h3 id="5-copy-webpack-plugin文件复制插件">5 copy-webpack-plugin（文件复制插件）</h3>
+<ul>
+<li>背景：一些静态资源（图片、字体等），在编译时，需要拷贝到输出文件夹。</li>
+<li>作用：用来复制文件或文件夹。</li>
+<li>安装：</li>
+</ul>
+<pre><code class="language-sh">yarn add --dev copy-webpack-plugin
+</code></pre>
+<ul>
+<li>配置：</li>
+</ul>
+<pre><code class="language-js">// 引入
+const CopyPlugin = require('copy-webpack-plugin');
+
+module.exports = {
+  // ...
+  plugins: [
+    new CopyPlugin([
+      { from: 'assets', to: 'dist' },
+      { from: 'images/xxx.png', to: 'dist' },
+    ]),
+  ],
+};
+</code></pre>
+<h3 id="6-compression-webpack-plugingzip-压缩插件">6 compression-webpack-plugin（gzip 压缩插件）</h3>
+<ul>
+<li>背景：所有现代浏览器都支持 <code>gzip</code> 压缩，启用 <code>gzip</code> 压缩可大幅缩减传输资源大小，从而缩短资源下载时间，减少首次白屏时间，提升用户体验。</li>
+<li>作用：用来对一些文本文件（JS CSS HTML）文件进行 <code>gzip</code> 压缩。</li>
+<li>安装：</li>
+</ul>
+<pre><code class="language-sh">yarn add --dev compression-webpack-plugin
+</code></pre>
+<ul>
+<li>配置：</li>
+</ul>
+<pre><code class="language-js">// 引入
+const CompressionPlugin = require('compression-webpack-plugin');
+
+module.exports = {
+  // ...
+  plugins: [
+    new CompressionPlugin({
+      // gzip压缩配置
+      test: /\.js$|\.html$|\.css/, // 匹配文件名
+      threshold: 10240, // 对超过10kb的数据进行压缩
+      deleteOriginalAssets: false, // 是否删除原文件
+    }),
+  ],
+};
+</code></pre>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://wuwenbang.github.io/post/webpack-loader-qian-xi/" class="post-title gt-a-link">
+                    Webpack Loader 浅析
+                </a>
+            </div>
+        
+
+        
+
+        
+            
+                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css">
 <script src="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js"></script>
 <script>
     // md5.min.js
@@ -160,15 +344,14 @@
 
 </script>
 
-                    
+            
 
-                    
-                
-            </div>
+            
+        
 
+        
 
-
-            <div class="site-footer gt-c-content-color-first">
+        <div class="site-footer gt-c-content-color-first">
     <div class="slogan gt-c-content-color-first">温故而知新</div>
     <div class="social-container">
         
@@ -202,8 +385,7 @@
   hljs.highlightAll()
 </script>
 
-        </div>
     </div>
+</div>
 </body>
-
 </html>

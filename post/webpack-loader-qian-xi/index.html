@@ -1,11 +1,10 @@
 <html>
-
 <head>
     <meta charset="utf-8" />
 <meta name="description" content="" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-<title>友情链接 | 核动力实验室</title>
+<title>Webpack Loader 浅析 | 核动力实验室</title>
 
 <link rel="shortcut icon" href="https://wuwenbang.github.io/favicon.ico?v=1646857306451">
 
@@ -26,12 +25,11 @@
 
 
 
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
 </head>
-
 <body>
 <div class="main gt-bg-theme-color-first">
-        <div class="main-content">
-            <nav class="navbar navbar-expand-lg">
+    <nav class="navbar navbar-expand-lg">
     <a class="navbar-brand" href="/">
         <img class="user-avatar" src="/images/avatar.png" alt="头像">
         <div class="site-name gt-c-content-color-first">
@@ -99,25 +97,147 @@
     }
 </script>
 
-            <div class="post-container">
-                <div class="post-detail">
-                    <article>
-                        <!-- <div class="post-content-wrapper"> -->
-                            <div class="post-content">
-                                <div class="friends-desc">
-                                    
-                                </div>
-                                <h3 id="linklist">友链列表</h3>
-                                
-                                    
-                                
-                            </div>
-                        <!-- </div> -->
-                    </article>
-                </div>
-                
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    Webpack Loader 浅析
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2022-03-10 ·
+                    </time>
                     
-                        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css">
+                        <a href="https://wuwenbang.github.io/tag/sOMGIMqAO/" class="post-tags">
+                            # Webpack
+                        </a>
+                    
+                </div>
+                <div class="post-content">
+                    <h1 id="1-loader-是什么">1 Loader 是什么</h1>
+<p>Loader 是 Webpack 中的文件加载器。</p>
+<h2 id="loader-的作用">Loader 的作用</h2>
+<p>Webpack 是一个模块化打包工具，但是其只能直接处理 JavaScript 格式的代码。任何非 JavaScript 文件（例如 TypeScript CSS SASS JSX）都必须被预先处理转换为 JavaScript 代码，才可以参与打包。而 Loader 文件加载器，能够加载资源文件，并对这些文件进行特定的处理，然后打包的指定文件中。</p>
+<p>例如 <code>ts-loader</code> 可以将 TypeScript 转换为 JavaScript 代码：</p>
+<p>TypeScript -&gt; (ts-loader) -&gt; JavaScript</p>
+<h2 id="loader-的本质">Loader 的本质</h2>
+<p>Loader 本质上是导出函数的 JavaScript 模块：</p>
+<pre><code class="language-js">/**
+ * @param {string|Buffer} content 源文件的内容
+ * @param {object} [map]  SourceMap 数据，用于定位源码
+ * @param {any} [meta] meta 数据，可以是任何内容
+ */
+function webpackLoader(content, map, meta) {
+  // 你的webpack loader代码
+}
+module.exports = webpackLoader;
+</code></pre>
+<p>基于所导出的函数，我们可以实现对源文件内容 <code>content</code> 的转换：函数 <code>return</code> 的就是转换的结果。</p>
+<h1 id="2-loader-使用方式">2 Loader 使用方式</h1>
+<h2 id="loader-三种使用方式">Loader 三种使用方式</h2>
+<ol>
+<li>配置（推荐）：在 <code>webpack.config.js</code> 文件中指定 loader。</li>
+</ol>
+<pre><code class="language-js">module.exports = {
+  module: {
+    rules: [
+      {
+        test: /\.css$/,
+        use: [
+          { loader: 'style-loader' },
+          {
+            loader: 'css-loader',
+            options: {
+              modules: true,
+            },
+          },
+        ],
+      },
+    ],
+  },
+};
+</code></pre>
+<ol start="2">
+<li>内联：在每个 import 语句中显式指定 loader。<br>
+可以在 <code>import</code> 语句或任何等效于 &quot;import&quot; 的方式中指定 loader。使用 <code>!</code> 将资源中的 loader 分开。分开的每个部分都相对于当前目录解析。</li>
+</ol>
+<pre><code class="language-js">import Styles from 'style-loader!css-loader?modules!./styles.css';
+</code></pre>
+<ol start="3">
+<li>命令行：在 shell 命令中指定它们。</li>
+</ol>
+<pre><code class="language-sh">webpack --module-bind 'css=style-loader!css-loader'
+</code></pre>
+<p>这样会对 <code>.css</code> 文件使用 <code>style-loader</code> 和 <code>css-loader</code>。</p>
+<h2 id="loader-执行顺序">Loader 执行顺序</h2>
+<p>Loader 遵循如下规则执行：从右到左，从下到上。</p>
+<p>例如上述 Loader 的执行顺序就是： css-loader -&gt; style-loader。</p>
+<h1 id="3-webpack-常用-loader">3 Webpack 常用 Loader</h1>
+<ul>
+<li>样式：style-loader、css-loader、sass-loader 等</li>
+<li>文件：raw-loader、file-loader、url-loader 等</li>
+<li>编译：babel-loader、vue-loader、ts-loader 等</li>
+<li>校验测试：eslint-loader、mocha-loader 等</li>
+</ul>
+<h2 id="样式-loader">样式 Loader</h2>
+<p>例如我们需要处理 <code>.sass</code> 文件，则需要经历一下三个 Loader ：</p>
+<ol>
+<li>sass-loader: 将 <code>.sass</code> 文件转换为 <code>.css</code> 文件</li>
+<li>css-loader: 将<code>.css</code> 文件内容转换为 JS 的字符串并作为 JS 模块导出</li>
+<li>style-loader: 将 <code>css</code> 字符串以 <code>style</code> 标签的方式插入 DOM 树中</li>
+</ol>
+<p>实现以上三个 Loader 的配置如下：</p>
+<pre><code class="language-js">module.exports = {
+  module: {
+    rules: [
+      {
+        test: /\.s[ca]ss$/,
+        use: ['style-loader', 'css-loader', 'sass-loader'],
+      },
+    ],
+  },
+};
+</code></pre>
+<h2 id="文件-loader">文件 Loader</h2>
+<ul>
+<li>raw-loader：加载文件原始内容（utf-8），返回 <code>JSON.stringify</code> 后的内容。</li>
+<li>file-loader：主要作用是将指定文件拷贝到输出文件夹。</li>
+<li>url-loader：url-loader 在 file-loader 的基础上加了一个 <code>data URL</code> 的功能。传给 url-loader 一个限制值，如果处理的文件小于这个值，loader 将会把文件转化为 <code>base64</code> 的 <code>data URL</code> 输出。大于限制的文件则交给引入的 file-loader 处理。</li>
+</ul>
+<h2 id="编译-loader">编译 Loader</h2>
+<ul>
+<li>babel-loader：默认用来处理 ES6 语法，将其编译为浏览器可以执行的 JS 语法。</li>
+<li>vue-loader：用来将 <code>.vue</code> 文件处理为 JS 可以识别的模块。</li>
+<li>ts-loader：用来将 <code>.ts</code> 文件处理为 JS 可以识别的语法。</li>
+</ul>
+<h2 id="校验测试-loader">校验测试 Loader</h2>
+<ul>
+<li>eslint-loader：允许 Eslitn 对 JS 文件做语法检查。</li>
+<li>mocha-loader：允许通过 Webpack 加载和运行 <code>Mocha Test</code>。</li>
+</ul>
+<h1 id="参考文档">参考文档</h1>
+<ul>
+<li><a href="https://webpack.js.org/concepts/loaders/">Webpack 官方文档 Loaders</a></li>
+</ul>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://wuwenbang.github.io/post/reack-hooks-cong-han-shu-de-jiao-du-qu-li-jie/" class="post-title gt-a-link">
+                    Reack Hooks 从函数的角度去理解
+                </a>
+            </div>
+        
+
+        
+
+        
+            
+                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css">
 <script src="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js"></script>
 <script>
     // md5.min.js
@@ -160,15 +280,14 @@
 
 </script>
 
-                    
+            
 
-                    
-                
-            </div>
+            
+        
 
+        
 
-
-            <div class="site-footer gt-c-content-color-first">
+        <div class="site-footer gt-c-content-color-first">
     <div class="slogan gt-c-content-color-first">温故而知新</div>
     <div class="social-container">
         
@@ -202,8 +321,7 @@
   hljs.highlightAll()
 </script>
 
-        </div>
     </div>
+</div>
 </body>
-
 </html>
