@@ -6,7 +6,7 @@
 
 <title>React Hooks 性能优化 | 核动力实验室</title>
 
-<link rel="shortcut icon" href="https://wuwenbang.github.io/favicon.ico?v=1647555138939">
+<link rel="shortcut icon" href="https://wuwenbang.github.io/favicon.ico?v=1647782043247">
 
 <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://wuwenbang.github.io/styles/main.css">
@@ -77,7 +77,7 @@
             
         </div>
         <div style="text-align: center">
-            <form id="gridea-search-form" style="position: relative" data-update="1647555138939"
+            <form id="gridea-search-form" style="position: relative" data-update="1647782043247"
                 action="/search/">
                 <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
                 <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
@@ -123,8 +123,8 @@
 </ol>
 <p>好在 React 团队也意识到函数组件可能发生的性能问题，并提供了 <code>React.memo</code>、<code>useMemo</code>、<code>useCallback</code> 这些 API 帮助开发者去优化他们的 React 代码。在使用它们进行优化之前，我想我们需要明确我们使用它们的目的：</p>
 <ol>
-<li>减少组件的非必要重新渲染</li>
-<li>减少组件内部的重复计算</li>
+<li>减少组件的<strong>非必要重新渲染</strong></li>
+<li>减少组件<strong>内部的重复计算</strong></li>
 </ol>
 <h1 id="1-使用-reactmemo-避免组件的重复渲染">1 使用 React.memo 避免组件的重复渲染</h1>
 <p>在讲述 <code>React.memo</code> 的作用之前，我们先来思考一个问题：什么情况下需要重新渲染组件？</p>
@@ -181,7 +181,7 @@ export default App;
 <p>如上图：<br>
 首次渲染时，<code>Child</code> 和 <code>MemoChild</code> 都会被渲染，控制台打印 <code>Child 渲染了</code> 和 <code>memoChild</code> 渲染了。</p>
 <p>而当我点击按钮触发重新渲染后，<code>Child</code> 依旧会重新渲染，而 <code>MemoChild</code> 则会进行新旧 <code>props</code> 的判断，由于 <code>memoChild</code> 没有 <code>props</code>，即新旧 <code>props</code> 相等（都为空），则 <code>memoChild</code> 使用之前的渲染结果（缓存），避免了重新渲染。</p>
-<p>由此可见，在没有任何优化的情况下，React 中某一组件重新渲染，会导致其全部的<strong>子组件重新渲染</strong>。即通过 <code>React.memo</code> 的包裹，在其父组件重新渲染时，可以避免这个组件的非必要重新渲染。</p>
+<p>由此可见，在没有任何优化的情况下，React 中某一组件重新渲染，会导致其<strong>全部的子组件重新渲染</strong>。即通过 <code>React.memo</code> 的包裹，在其父组件重新渲染时，可以避免这个组件的非必要重新渲染。</p>
 <p>需要注意的是：上文中的【渲染】指的是 React 执行函数组件并生成或更新虚拟 DOM 树（Fiber 树）的过程。在渲染真实 DOM （Commit 阶段）前还有 DOM Diff 的过程，会比对虚拟 DOM 之间的差异，再去渲染变化的 DOM 。不然如果每次更改状态都会重新渲染真实 DOM，那么 React 的性能真就爆炸了（笑）。</p>
 <h1 id="2-使用-usememo-避免重复计算">2 使用 useMemo 避免重复计算</h1>
 <p><code>const memolized = useMemo(fn,deps)</code></p>
@@ -219,18 +219,27 @@ export default App;
 </code></pre>
 <p>上例中：<code>sum</code> 是一个根据 <code>list</code> 得到的普通计算值，<code>memoSum</code> 是一个通过 <code>useMemo</code> 得到的 momelized 值（缓存值），并且依赖项为 <code>list</code>。</p>
 <figure data-type="image" tabindex="2"><a href="https://imgtu.com/i/qpR3CT"><img src="https://s1.ax1x.com/2022/03/16/qpR3CT.png" alt="qpR3CT.png" loading="lazy"></a></figure>
-<p>如上图控制台中 log 所示：首次渲染，<code>sum</code> 和 <code>memoSum</code> 都会根据 <code>list</code> 的值进行计算；</p>
+<p>如上图控制台中 log 所示：</p>
+<ol>
+<li>
+<p>首次渲染，<code>sum</code> 和 <code>memoSum</code> 都会根据 <code>list</code> 的值进行计算；</p>
+</li>
+<li>
 <p>当点击 【重新渲染 App】按钮后，虽然 <code>list</code> 没有改变，但是 <code>sum</code> 的值进行了重新计算，而 <code>memoSum</code> 的值则没有重新计算，使用了上一次的计算结果（memolized）。</p>
+</li>
+<li>
 <p>当点击 【往 List 添加一个数字】按钮后，<code>list</code> 的值发生改变，<code>sum</code> 和 <code>memoSum</code> 的值都进行重新计算。</p>
-<p>总结：在函数组件内部，一些基于 State 的衍生值和一些复杂的计算可以通过 useMemo 进行性能优化。</p>
+</li>
+</ol>
+<p>总结：在函数组件内部，一些<strong>基于 State 的衍生值和一些复杂的计算</strong>可以通过 <code>useMemo</code> 进行性能优化。</p>
 <h1 id="3-使用-usecallback-避免子组件的重复渲染">3 使用 useCallback 避免子组件的重复渲染</h1>
 <p><code>const memolizedCallback = useCallback(fn, deps);</code></p>
 <p>React 的 useCallback 把【回调函数 <code>fn</code>】和【依赖项数组 <code>deps</code>】作为参数，并返回一个【缓存的回调函数 <code>memolizedCallback</code>】（本质上是一个引用），它仅会在某个依赖项改变时才重新生成 <code>memolizedCallback</code>。当你把 <code>memolizedCallback</code> 作为参数传递给子组件（被 React.memo 包裹过的）时，它可以避免非必要的子组件重新渲染。</p>
 <h2 id="usecallback-与-usememo-异同">useCallback 与 useMemo 异同</h2>
 <p><code>useCallback</code> 与 <code>useMemo</code> 都会缓存对应的值，并且只有在依赖变动的时候才会更新缓存，区别在于：</p>
 <ul>
-<li><code>useMemo</code> 会执行传入的回调函数，返回的是函数执行的结果</li>
-<li><code>useCallback</code> 不会执行传入的回调函数，返回的是函数的引用</li>
+<li><code>useMemo</code> 会执行传入的回调函数，返回的是<strong>函数执行的结果</strong></li>
+<li><code>useCallback</code> 不会执行传入的回调函数，返回的是<strong>函数的引用</strong></li>
 </ul>
 <h2 id="usecallback-使用误区">useCallback 使用误区</h2>
 <p>有很多初学者（包括以前的我）会有这样一个误区：在函数组件内部声明的函数全部都用 <code>useCallback</code> 包裹一层，以为这样可以通过避免函数的重复生成优化性能，实则不然：</p>
@@ -241,8 +250,8 @@ export default App;
 </ol>
 <h2 id="usecallback-正确的使用场景">useCallback 正确的使用场景</h2>
 <ol>
-<li>函数组件内部定义的函数需要作为其他 Hooks 的依赖。</li>
-<li>函数组件内部定义的函数需要传递给其子组件，并且子组件由 <code>React.memo</code> 包裹。</li>
+<li>函数组件内部定义的函数需要<strong>作为其他 Hooks 的依赖</strong>。</li>
+<li>函数组件内部定义的函数需要传递给其子组件，并且<strong>子组件由 <code>React.memo</code> 包裹</strong>。</li>
 </ol>
 <p>场景 1：<code>useCallback</code> 主要是为了避免当组件重新渲染时，函数引用变动所导致其它 Hooks 的重新执行，更为甚者可能造成组件的无限渲染：</p>
 <pre><code class="language-tsx">import React, { useEffect, useState } from 'react';
@@ -325,7 +334,7 @@ function App() {
 <h1 id="参考文章">参考文章</h1>
 <ul>
 <li><a href="https://zh-hans.reactjs.org/docs/hooks-faq.html#performance-optimizations">React 官方文档</a></li>
-<li><a href="https://segmentfault.com/a/1190000022988054">Segmentfault 一直以来<code>useCallback</code>的使用姿势都不对</a></li>
+<li><a href="https://segmentfault.com/a/1190000022988054">Segmentfault 一直以来 useCallback 的使用姿势都不对</a></li>
 </ul>
 
                 </div>

@@ -6,7 +6,7 @@
 
 <title>TypeScript 工具类型 | 核动力实验室</title>
 
-<link rel="shortcut icon" href="https://wuwenbang.github.io/favicon.ico?v=1647555138939">
+<link rel="shortcut icon" href="https://wuwenbang.github.io/favicon.ico?v=1647782043247">
 
 <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://wuwenbang.github.io/styles/main.css">
@@ -77,7 +77,7 @@
             
         </div>
         <div style="text-align: center">
-            <form id="gridea-search-form" style="position: relative" data-update="1647555138939"
+            <form id="gridea-search-form" style="position: relative" data-update="1647782043247"
                 action="/search/">
                 <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
                 <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
@@ -125,7 +125,7 @@
 }
 
 const tom: Partial&lt;Person&gt; = {
-  name: &quot;Tom&quot;,
+  name: 'Tom',
 };
 </code></pre>
 <p><code>Partial&lt;Person&gt;</code> 等价于</p>
@@ -205,16 +205,16 @@ tom = {
 <li>通过类型映射，再统一通过 <code>-</code> 修饰符移除 <code>?</code> 修饰符，从而转变为<strong>必填状态</strong>。</li>
 </ol>
 <pre><code class="language-ts">type Required&lt;T&gt; = {
-  Required [P in keyof T]: T[P];
+  [P in keyof T]-?: T[P];
 };
 </code></pre>
 <h2 id="recordkt">Record&lt;K,T&gt;</h2>
 <p><strong>作用</strong>：它用来生成一个属性名为 <code>K</code>，属性值类型为 <code>T</code> 的对象类型集合。</p>
 <p><strong>示例</strong>：</p>
 <pre><code class="language-ts">// 快速生成一个 Person 对象
-type Person = Record&lt;&quot;name&quot; | &quot;country&quot;, string&gt;;
+type Person = Record&lt;'name' | 'country', string&gt;;
 
-const Tom: Person = { name: &quot;Tom&quot;, country: &quot;America&quot; };
+const Tom: Person = { name: 'Tom', country: 'America' };
 </code></pre>
 <p><strong>实现原理</strong>:</p>
 <ol>
@@ -225,11 +225,11 @@ const Tom: Person = { name: &quot;Tom&quot;, country: &quot;America&quot; };
   [P in K]: T;
 };
 </code></pre>
-<h2 id="excludetk">Exclude&lt;T,K&gt;</h2>
+<h2 id="excludetu">Exclude&lt;T,U&gt;</h2>
 <p><strong>作用</strong>：从类型 <code>T</code> 中排除所有可以赋值给类型 <code>U</code> 的类型。</p>
 <p><strong>示例</strong>：</p>
 <pre><code class="language-ts">// 从 &quot;a&quot; | &quot;b&quot; | &quot;c&quot; 中排除掉 &quot;a&quot; 类型
-type T1 = Exclude&lt;&quot;a&quot; | &quot;b&quot; | &quot;c&quot;, &quot;a&quot;&gt;;
+type T1 = Exclude&lt;'a' | 'b' | 'c', 'a'&gt;;
 // T1 = &quot;b&quot; | &quot;c&quot;
 
 // 从 string | number | boolean 中排除掉 string 类型
@@ -248,11 +248,11 @@ type T2 = Exclude&lt;string | number | boolean, string&gt;;
 </ol>
 <pre><code class="language-ts">type Exclude&lt;T, U&gt; = T extends U ? never : T;
 </code></pre>
-<h2 id="extracttk">Extract&lt;T,K&gt;</h2>
+<h2 id="extracttu">Extract&lt;T,U&gt;</h2>
 <p><strong>作用</strong>：与 <code>Exclude</code> 相反，从类型 <code>T</code> 中提取所有可以赋值给类型 <code>U</code> 的类型。</p>
 <p><strong>示例</strong>：</p>
 <pre><code class="language-ts">// 从 &quot;a&quot; | &quot;b&quot; | &quot;c&quot; 中提取出 &quot;a&quot; 类型
-type T1 = Extract&lt;&quot;a&quot; | &quot;b&quot; | &quot;c&quot;, &quot;a&quot;&gt;;
+type T1 = Extract&lt;'a' | 'b' | 'c', 'a'&gt;;
 // T1 = &quot;a&quot;
 
 // 从 string | number | boolean 中提取出 string 类型
@@ -284,10 +284,10 @@ type T3 = Extract&lt;string | (() =&gt; void), Function&gt;;
 }
 
 // 从 Person 中摘选出 name 属性
-type PickPerson = Pick&lt;Person, &quot;name&quot;&gt;;
+type PickPerson = Pick&lt;Person, 'name'&gt;;
 
 const tom: PickPerson = {
-  name: &quot;Tom&quot;,
+  name: 'Tom',
 };
 </code></pre>
 <p><strong>实现原理</strong>：</p>
@@ -308,7 +308,7 @@ const tom: PickPerson = {
 }
 
 // 从 Person 中剔除掉 name 属性
-type OmitPerson = Pick&lt;Person, &quot;name&quot;&gt;;
+type OmitPerson = Pick&lt;Person, 'name'&gt;;
 
 const tom: PickPerson = {
   age: 18,
